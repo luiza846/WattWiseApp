@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WattWiseApp">
         <activity
+            android:name=".Dashboard"
+            android:exported="false" />
+        <activity
+            android:name=".register"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
