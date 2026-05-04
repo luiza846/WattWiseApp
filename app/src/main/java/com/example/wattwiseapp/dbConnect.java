@@ -12,7 +12,7 @@ public class dbConnect extends SQLiteOpenHelper {
 
     // infos do banco de dados
     private static String dbName = "findFriendsManager";
-    private static int dbVersion = 4;
+    private static int dbVersion = 6;
 
     // tabela user
     private static String dbTable = "users";
@@ -31,6 +31,15 @@ public class dbConnect extends SQLiteOpenHelper {
     private static  String tipoComodo = "tipoComodo";
     private static  String qtdTomadas = "qtdTomadas";
     private static  String descricao = "descricao";
+
+    // tabela eletrodomestico
+    private static String eletroTable = "eletro";
+    private static  String idEletro = "idEletro";
+    private static  String nomeEletro = "nomeEletro";
+    private static  String TipoEletro = "tipoEletro";
+    private static  String comodoEletro = "comodoEletro";
+    private static  String potenciaEletro = "potenciaEletro";
+    private static  String descricaoEletro = "descricaoEletro";
 
 
     public dbConnect(@Nullable Context context) {
@@ -67,6 +76,19 @@ public class dbConnect extends SQLiteOpenHelper {
 
         db.execSQL(queryComodo);
 
+        // tabela eletronico
+        String queryEletro =
+                "CREATE TABLE IF NOT EXISTS " + eletroTable + " (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        nomeEletro + " TEXT, " +
+                        TipoEletro + " TEXT, " +
+                        comodoEletro + " TEXT, " +
+                        potenciaEletro + " TEXT, " +
+                        descricaoEletro + " TEXT " +
+                        ")";
+
+        db.execSQL(queryEletro);
+
     }
 
     @Override
@@ -74,9 +96,11 @@ public class dbConnect extends SQLiteOpenHelper {
 
         // user
         db.execSQL("DROP TABLE IF EXISTS " + dbTable);
-        onCreate(db);
         // comodo
         db.execSQL("DROP TABLE IF EXISTS " + comodoTable);
+        // eletronico
+        db.execSQL("DROP TABLE IF EXISTS " + eletroTable);
+
         onCreate(db);
 
     }
@@ -124,6 +148,21 @@ public class dbConnect extends SQLiteOpenHelper {
         values.put(descricao,room.getDescricao());
 
         db.insert(comodoTable, null, values);
+
+    }
+
+    // criar eletronico
+    public void addAppliance(Appliance appliance){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(nomeEletro,appliance.getNomeEletro());
+        values.put(TipoEletro,appliance.getTipoEletro());
+        values.put(comodoEletro,appliance.getComodoEletro());
+        values.put(potenciaEletro,appliance.getPotenciaEletro());
+        values.put(descricaoEletro,appliance.getDescricaoEletro());
+
+        db.insert(eletroTable, null, values);
 
     }
 

@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class Dashboard extends AppCompatActivity {
 
-    Button btnRegisterRoom;
+    Button btnRegisterRoom, btnRegisterAppliance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +22,7 @@ public class Dashboard extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         btnRegisterRoom = findViewById(R.id.btnRegisterRoom);
+        btnRegisterAppliance = findViewById(R.id.btnRegisterAppliance);
 
         btnRegisterRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,6 +31,15 @@ public class Dashboard extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        btnRegisterAppliance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Dashboard.this, registerAppliance.class);
+                startActivity(i);
+            }
+        });
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

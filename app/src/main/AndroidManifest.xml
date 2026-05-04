@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WattWiseApp">
         <activity
+            android:name=".registerAppliance"
+            android:exported="false" />
+        <activity
             android:name=".registerRoom"
             android:exported="false" />
         <activity
