@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".register">
 
     <TextView
@@ -76,7 +77,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtDescricaoReg"
         tools:ignore="DuplicateSpeakableTextCheck" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
