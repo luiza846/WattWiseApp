@@ -1,9 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.WattWiseApp" parent="Theme.Material3.DayNight">
+    <style name="Base.Theme.WattWiseApp" parent="Theme.Material3.Light">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
     <style name="Theme.WattWiseApp" parent="Base.Theme.WattWiseApp" />
+
+    <style name="MenuBranco" parent="ThemeOverlay.Material3.Light">
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#000000</item>
+        <item name="android:background">#FFFFFF</item>
+    </style>
+
 </resources>

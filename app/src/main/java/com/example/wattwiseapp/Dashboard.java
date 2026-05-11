@@ -7,10 +7,11 @@ import android.widget.Button;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import com.example.wattwiseapp.R;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -65,13 +66,31 @@ public class Dashboard extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.menu_editar) {
-            // ação do botão Editar
-            Toast.makeText(this, "Editar clicado", Toast.LENGTH_SHORT).show();
+        if (id == R.id.sensor) {
+            Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.comodo) {
+            Intent i = new Intent(Dashboard.this, registerRoom.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.eletronicos) {
+            Intent i = new Intent(Dashboard.this, registerAppliance.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.relatorios) {
+            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.metas) {
+            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.configuracao) {
+            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.logout) {
+            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
             return true;
         }
 

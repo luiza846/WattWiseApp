@@ -16,7 +16,7 @@
         android:background="#2F3B75"
         android:title="Dashboard"
         android:titleTextColor="@android:color/white"
-
+        app:popupTheme="@style/MenuBranco"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
