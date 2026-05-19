@@ -60,12 +60,9 @@ public class register extends AppCompatActivity {
                 String strFullname = edtFullNameReg.getText().toString();
                 String strEmailAddress = edtEmailAddressReg.getText().toString();
                 String strPassword = edtPasswordReg.getText().toString();
-                String strPhoneNumber = edtPhoneNumberReg.getText().toString();
-                String strBio = edtBioReg.getText().toString();
-                String strDOB = edtDateofBirth.getText().toString();
 
 
-                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty() || strPhoneNumber.isEmpty() || strBio.isEmpty() || strDOB.isEmpty()){
+                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty()){
 
                     txtDisplayInfoReg.setText("All fields required");
 
@@ -86,10 +83,7 @@ public class register extends AppCompatActivity {
                                             0,
                                             strFullname,
                                             strEmailAddress,
-                                            strPassword,
-                                            strDOB,
-                                            strPhoneNumber,
-                                            strBio
+                                            strPassword
                                     );
 
                                     //salvando no realtime database
