@@ -20,9 +20,6 @@ public class dbConnect extends SQLiteOpenHelper {
     private static  String fullname = "fullname";
     private static  String emailAddress = "emailAddress";
     private static  String password = "password";
-    private static  String phoneNumber = "phoneNumber";
-    private static  String dob = "dob";
-    private static  String bio = "bio";
 
     // tabela comodo
     private static String comodoTable = "room";
@@ -57,9 +54,6 @@ public class dbConnect extends SQLiteOpenHelper {
                         fullname + " TEXT, " +
                         emailAddress + " TEXT, " +
                         password + " TEXT, " +
-                        dob + " TEXT, " +
-                        phoneNumber + " TEXT, " +
-                        bio + " TEXT" +
                         ")";
 
         db.execSQL(query);
@@ -113,9 +107,6 @@ public class dbConnect extends SQLiteOpenHelper {
         values.put(fullname,user.getFullname());
         values.put(emailAddress,user.getEmailAddress());
         values.put(password,user.getPassword());
-        values.put(phoneNumber,user.getPhoneNumber());
-        values.put(dob,user.getDOB());
-        values.put(bio,user.getBio());
 
         db.insert(dbTable, null, values);
 
