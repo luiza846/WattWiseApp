@@ -2,7 +2,7 @@ package com.example.wattwiseapp;
 
 public class Room {
 
-    private int idComodo;
+    private String idComodo;
     private String nomeComodo;
     private String tipoComodo;
     private String qtdTomadas;

@@ -65,35 +65,36 @@ public class registerRoom extends AppCompatActivity {
                     if (currentUser != null) {
                         String userId = currentUser.getUid();
 
+                        com.google.firebase.database.DatabaseReference comodoRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                                .getReference("Usuarios")
+                                .child(userId)
+                                .child("Comodos")
+                                .push();
+
+                        String idGeradoPeloFirebase = comodoRef.getKey();
+
+
                         Room room = new Room(
-                                0,
+                                idGeradoPeloFirebase,
                                 strNomeComodo,
                                 strTipoComodo,
                                 strQtdTomadas,
                                 strDescricao
                         );
 
-                        com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Usuarios")
-                                .child(userId)
-                                .child("Comodos")
-                                .push()
-                                .setValue(room)
+                        comodoRef.setValue(room)
                                 .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        txtDisplayInfoReg.setText("Room registered sucessfully!");
+                                   if (task.isSuccessful()) {
+                                       txtDisplayInfoReg.setText("Room registered sucessfully!");
 
-                                        //limpa os campos do usuário para poder cadastrar outro cômodo se quiser
+                                       edtNomeComodoReg.setText("");
+                                       edtQtdTomadasReg.setText("");
+                                       edtDescricaoReg.setText("");
 
-                                        edtNomeComodoReg.setText("");
-                                        edtDescricaoReg.setText("");
-                                        edtQtdTomadasReg.setText("");
-
-                                    } else {
-                                        txtDisplayInfoReg.setText("Erro ao salvar: " + task.getException().getLocalizedMessage());
-                                    }
+                                   } else {
+                                       txtDisplayInfoReg.setText("Erro ao salvar: " + task.getException().getLocalizedMessage());
+                                   }
                                 });
-
-
 
                     } else {
                         txtDisplayInfoReg.setText("Erro: Nenhum usuário autenticado no app.");
