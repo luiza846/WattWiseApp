@@ -49,27 +49,30 @@ public class MainActivity extends AppCompatActivity {
                 String email = edtEmailAddressLog.getText().toString().trim();
                 String password = edtPasswordLog.getText().toString().trim();
 
-                if(email.isEmpty() && password.isEmpty()){
+                // Coloquei o || para barrar se qualquer um dos campos estiver vazio!
+                if(email.isEmpty() || password.isEmpty()){
                     txtDisplayInfoLog.setText("Fill all Fields");
                     return;
                 }
 
-                //conectar com o arquivo db
-                dbConnect db = new dbConnect(MainActivity.this);
-                //acessar o metodo checkLogin
-                boolean success = db.checkLogin(email, password);
+                txtDisplayInfoLog.setText("Autenticando...");
 
-                if (success){
-                    txtDisplayInfoLog.setText("Login successfully!");
+                com.google.firebase.auth.FirebaseAuth.getInstance()
+                        .signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if(task.isSuccessful()) {
 
-                    //ir pra tela prncipal
-                    Intent i = new Intent(MainActivity.this,Dashboard.class);
-                    startActivity(i);
+                                txtDisplayInfoLog.setText("Login sucessfully!");
 
-                } else {
-                    txtDisplayInfoLog.setText("Invalid email or password");
-                }
+                                //vai pra tela principal
+                                Intent i = new Intent(MainActivity.this, Dashboard.class);
+                                startActivity(i);
+                                finish();
 
+                            } else {
+                                txtDisplayInfoLog.setText("Invalid email or password!");
+                            }
+                        });
             }
         });
 
