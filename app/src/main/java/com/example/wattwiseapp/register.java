@@ -64,29 +64,33 @@ public class register extends AppCompatActivity {
                 String strBio = edtBioReg.getText().toString();
                 String strDOB = edtDateofBirth.getText().toString();
 
-                if(strFullname.isEmpty() && strEmailAddress.isEmpty() && strPassword.isEmpty() && strPhoneNumber.isEmpty() && strBio.isEmpty() && strDOB.isEmpty()){
 
-                    txtDisplayInfoReg.setText(("All fields required"));
+                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty() || strPhoneNumber.isEmpty() || strBio.isEmpty() || strDOB.isEmpty()){
+
+                    txtDisplayInfoReg.setText("All fields required");
 
                 } else {
 
-                    Users user = new Users(
-                            0,
-                            strFullname,
-                            strEmailAddress,
-                            strPassword,
-                            strDOB,
-                            strPhoneNumber,
-                            strBio
-                    );
+                    txtDisplayInfoReg.setText("Registrando no Firebase...");
 
-                    dbConnect db = new dbConnect(register.this);
-                    db.addUser(user);
 
-                    txtDisplayInfoReg.setText("User registered successfully!");
+                    com.google.firebase.auth.FirebaseAuth.getInstance()
+                            .createUserWithEmailAndPassword(strEmailAddress, strPassword)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    // conta foi criada no console do Firebase.
+                                    txtDisplayInfoReg.setText("User registered successfully!");
 
+                                    // Redireciona o usuário para a tela principal (opcional)
+                                    Intent i = new Intent(register.this, MainActivity.class);
+                                    startActivity(i);
+                                    finish();
+
+                                } else {
+                                    txtDisplayInfoReg.setText("Erro: " + task.getException().getLocalizedMessage());
+                                }
+                            });
                 }
-
             }
         });
 
