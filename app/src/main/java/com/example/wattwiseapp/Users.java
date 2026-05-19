@@ -6,9 +6,6 @@ public class Users {
     private String fullname;
     private String emailAddress;
     private String password;
-    private String DOB; //date of birth
-    private String phoneNumber;
-    private String bio;
 
 
     //construtor vazio para que o firebase possa reconstruir o objeto a partir dos dados que estão na nuvem.
@@ -17,14 +14,11 @@ public class Users {
     }
 
     //construtor
-    public Users(int id, String fullname, String emailAddress, String password, String DOB, String phoneNumber, String bio) {
+    public Users(int id, String fullname, String emailAddress, String password) {
         this.id = id;
         this.fullname = fullname;
         this.emailAddress = emailAddress;
         this.password = password;
-        this.DOB = DOB;
-        this.phoneNumber = phoneNumber;
-        this.bio = bio;
     }
 
     public int getId() {
@@ -59,28 +53,5 @@ public class Users {
         this.password = password;
     }
 
-    public String getDOB() {
-        return DOB;
-    }
-
-    public void setDOB(String DOB) {
-        this.DOB = DOB;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
 }
 

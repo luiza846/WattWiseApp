@@ -16,8 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class register extends AppCompatActivity {
 
-    EditText edtFullNameReg, edtEmailAddressReg, edtPasswordReg, edtPhoneNumberReg, edtDateofBirth, edtBioReg;
-    Button btnRegisterReg, btnLoginReg;
+    EditText edtFullNameReg, edtEmailAddressReg, edtPasswordReg, edtConfirmPasswordReg;
+    Button btnRegisterReg;
     TextView txtDisplayInfoReg;
 
     @Override
@@ -29,21 +29,10 @@ public class register extends AppCompatActivity {
         edtEmailAddressReg = findViewById(R.id.edtEmailAddressReg);
         edtFullNameReg = findViewById(R.id.edtFullNameReg);
         edtPasswordReg = findViewById(R.id.edtPasswordReg);
-        edtPhoneNumberReg = findViewById(R.id.edtPhoneNumberReg);
-        edtBioReg = findViewById(R.id.edtBioReg);
-        edtDateofBirth = findViewById(R.id.edtDateofBirth);
+
         txtDisplayInfoReg = findViewById(R.id.txtDisplayInfoReg);
 
         btnRegisterReg = findViewById(R.id.btnRegisterReg);
-        btnLoginReg = findViewById(R.id.btnLoginReg);
-
-        btnLoginReg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(register.this, MainActivity.class);
-                startActivity(i);
-            }
-        });
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -60,12 +49,10 @@ public class register extends AppCompatActivity {
                 String strFullname = edtFullNameReg.getText().toString();
                 String strEmailAddress = edtEmailAddressReg.getText().toString();
                 String strPassword = edtPasswordReg.getText().toString();
-                String strPhoneNumber = edtPhoneNumberReg.getText().toString();
-                String strBio = edtBioReg.getText().toString();
-                String strDOB = edtDateofBirth.getText().toString();
 
 
-                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty() || strPhoneNumber.isEmpty() || strBio.isEmpty() || strDOB.isEmpty()){
+
+                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty()){
 
                     txtDisplayInfoReg.setText("All fields required");
 
@@ -86,10 +73,7 @@ public class register extends AppCompatActivity {
                                             0,
                                             strFullname,
                                             strEmailAddress,
-                                            strPassword,
-                                            strDOB,
-                                            strPhoneNumber,
-                                            strBio
+                                            strPassword
                                     );
 
                                     //salvando no realtime database

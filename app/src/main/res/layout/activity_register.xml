@@ -12,34 +12,30 @@
         android:id="@+id/txtDisplayInfoReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/btnRegisterReg"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtBioReg" />
+        app:layout_constraintTop_toBottomOf="@+id/edtConfirmPasswordReg" />
 
     <EditText
-        android:id="@+id/edtFullNameReg"
+        android:id="@+id/edtPasswordReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:layout_marginBottom="20dp"
         android:ems="10"
-        android:hint="Nome"
-        android:inputType="text"
+        android:hint="Senha"
+        android:inputType="textPassword"
         android:textColor="#000000"
         android:textColorHint="#686565"
         android:textColorLink="#2F3B75"
-        app:layout_constraintBottom_toTopOf="@+id/edtEmailAddressReg"
+        app:layout_constraintBottom_toTopOf="@+id/edtConfirmPasswordReg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/edtEmailAddressReg" />
 
     <EditText
         android:id="@+id/edtEmailAddressReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         android:ems="10"
         android:hint="Email"
         android:inputType="text"
@@ -51,110 +47,66 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtFullNameReg" />
 
-    <EditText
-        android:id="@+id/edtPasswordReg"
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:ems="10"
-        android:hint="Senha"
-        android:inputType="text"
+        android:layout_marginTop="50dp"
+        android:text="CRIAR CONTA"
         android:textColor="#000000"
-        android:textColorHint="#686565"
-        android:textColorLink="#2F3B75"
-        app:layout_constraintBottom_toTopOf="@+id/edtDateofBirth"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/edtFullNameReg"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtEmailAddressReg" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/edtDateofBirth"
+        android:id="@+id/edtFullNameReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         android:ems="10"
-        android:hint="Data de Nascimento"
+        android:hint="Nome"
         android:inputType="text"
         android:textColor="#000000"
         android:textColorHint="#686565"
         android:textColorLink="#2F3B75"
-        app:layout_constraintBottom_toTopOf="@+id/edtPhoneNumberReg"
+        app:layout_constraintBottom_toTopOf="@+id/edtEmailAddressReg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPasswordReg" />
-
-    <EditText
-        android:id="@+id/edtPhoneNumberReg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:ems="10"
-        android:hint="Número de Telefone"
-        android:inputType="text"
-        android:textColor="#000000"
-        android:textColorHint="#686565"
-        android:textColorLink="#2F3B75"
-        app:layout_constraintBottom_toTopOf="@+id/edtBioReg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtDateofBirth" />
-
-    <EditText
-        android:id="@+id/edtBioReg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="250dp"
-        android:ems="10"
-        android:hint="Bio"
-        android:inputType="text"
-        android:textColor="#000000"
-        android:textColorHint="#686565"
-        android:textColorLink="#2F3B75"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPhoneNumberReg" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Button
         android:id="@+id/btnRegisterReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:backgroundTint="#2F3B75"
-        android:textColor="#FFFFFF"
         android:text="Registrar"
-        app:layout_constraintBottom_toTopOf="@+id/btnLoginReg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtBioReg"
-        tools:ignore="DuplicateSpeakableTextCheck" />
-
-    <Button
-        android:id="@+id/btnLoginReg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#2F3B75"
         android:textColor="#FFFFFF"
-        android:text="Login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnRegisterReg" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDisplayInfoReg"
+        app:layout_constraintVertical_bias="0.195"
+        tools:ignore="DuplicateSpeakableTextCheck" />
 
-    <TextView
-        android:id="@+id/textView"
+    <EditText
+        android:id="@+id/edtConfirmPasswordReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="CRIAR CONTA"
+        android:layout_marginBottom="62dp"
+        android:ems="10"
+        android:hint="Confirmar Senha"
+        android:inputType="textPassword"
         android:textColor="#000000"
-        app:layout_constraintBottom_toTopOf="@+id/edtFullNameReg"
+        android:textColorHint="#686565"
+        android:textColorLink="#2F3B75"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegisterReg"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/edtPasswordReg"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
