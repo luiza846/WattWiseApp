@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "353887301602",
+    "firebase_url": "https://wattwise-728fa-default-rtdb.firebaseio.com",
+    "project_id": "wattwise-728fa",
+    "storage_bucket": "wattwise-728fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353887301602:android:28cfc9b2ad8e5a796b53bb",
+        "android_client_info": {
+          "package_name": "com.example.wattwiseapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYDKd6-Zp3OyT3LAXP648S3Yvr-Y40ZkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
