@@ -80,7 +80,7 @@ public class register extends AppCompatActivity {
                                     String userId = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                                     Users user = new Users(
-                                            0,
+                                            userId,
                                             strFullname,
                                             strEmailAddress,
                                             strPassword
