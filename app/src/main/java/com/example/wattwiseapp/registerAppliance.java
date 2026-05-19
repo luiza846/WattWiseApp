@@ -72,8 +72,7 @@ public class registerAppliance extends AppCompatActivity {
                             strEletroComodo
                     );
 
-                    dbConnect db = new dbConnect(registerAppliance.this);
-                    db.addAppliance(appliance);
+
 
                     txtDisplayInfoReg.setText("Appliance registered successfully!");
 

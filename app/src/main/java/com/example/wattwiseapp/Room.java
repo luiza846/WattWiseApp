@@ -8,6 +8,11 @@ public class Room {
     private String qtdTomadas;
     private String descricao;
 
+
+    public Room() {
+
+    }
+
     //constructor
     public Room(int idComodo, String nomeComodo, String tipoComodo, String qtdTomadas, String descricao) {
         this.idComodo = idComodo;

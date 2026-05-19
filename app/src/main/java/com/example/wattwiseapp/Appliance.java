@@ -9,6 +9,11 @@ public class Appliance {
     private String potenciaEletro;
     private String descricaoEletro;
 
+    public Appliance() {
+
+    }
+
+
     //construtor
     public Appliance(int idEletro, String nomeEletro, String tipoEletro, String comodoEletro, String potenciaEletro, String descricaoEletro) {
         this.idEletro = idEletro;
