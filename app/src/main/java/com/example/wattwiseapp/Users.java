@@ -11,6 +11,11 @@ public class Users {
     private String bio;
 
 
+    //construtor vazio para que o firebase possa reconstruir o objeto a partir dos dados que estão na nuvem.
+    public Users(){
+
+    }
+
     //construtor
     public Users(int id, String fullname, String emailAddress, String password, String DOB, String phoneNumber, String bio) {
         this.id = id;

@@ -78,18 +78,43 @@ public class register extends AppCompatActivity {
                             .createUserWithEmailAndPassword(strEmailAddress, strPassword)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
+
+                                    //pega o ID único (UID) do usuário recém-criado
+                                    String userId = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                                    Users user = new Users(
+                                            0,
+                                            strFullname,
+                                            strEmailAddress,
+                                            strPassword,
+                                            strDOB,
+                                            strPhoneNumber,
+                                            strBio
+                                    );
+
+                                    //salvando no realtime database
+                                    com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Usuarios")
+                                            .child(userId)
+                                            .setValue(user).addOnCompleteListener(taskBanco -> {
+                                                if (taskBanco.isSuccessful()) {
+                                                    txtDisplayInfoReg.setText("Conta e perfil salvos com sucesso!");
+
+                                                    Intent i  = new Intent(register.this, MainActivity.class);
+                                                    startActivity(i);
+                                                    finish();
+                                                } else {
+                                                    txtDisplayInfoReg.setText("Erro no banco: " + taskBanco.getException().getLocalizedMessage());
+                                                }
+                                            });
+
                                     // conta foi criada no console do Firebase.
                                     txtDisplayInfoReg.setText("User registered successfully!");
 
-                                    // Redireciona o usuário para a tela principal (opcional)
-                                    Intent i = new Intent(register.this, MainActivity.class);
-                                    startActivity(i);
-                                    finish();
-
                                 } else {
-                                    txtDisplayInfoReg.setText("Erro: " + task.getException().getLocalizedMessage());
+                                    txtDisplayInfoReg.setText("Erro na conta: " + task.getException().getLocalizedMessage());
                                 }
                             });
+
                 }
             }
         });
