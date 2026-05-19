@@ -56,7 +56,7 @@ public class registerAppliance extends AppCompatActivity {
                 String strTipoEletro = edtTipoEletroReg.getSelectedItem().toString();
                 String strEletroComodo = edtEletroComodoReg.getSelectedItem().toString();
 
-                if(strNomeEletro.isEmpty() && strPotencia.isEmpty() && strDescricaoEletro.isEmpty() && strTipoEletro.isEmpty() && strEletroComodo.isEmpty()){
+                if(strNomeEletro.isEmpty() || strPotencia.isEmpty() || strDescricaoEletro.isEmpty() || strTipoEletro.isEmpty() || strEletroComodo.isEmpty()){
 
                     txtDisplayInfoReg.setText(("All fields required"));
 
