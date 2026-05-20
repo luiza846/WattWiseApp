@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WattWiseApp">
         <activity
+            android:name=".listRoom"
+            android:exported="false" />
+        <activity
+            android:name=".listAppliance"
+            android:exported="false" />
+        <activity
             android:name=".registerAppliance"
             android:exported="false" />
         <activity
@@ -19,8 +25,8 @@
             android:exported="false" />
         <activity
             android:name=".Dashboard"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".register"
             android:exported="false" />

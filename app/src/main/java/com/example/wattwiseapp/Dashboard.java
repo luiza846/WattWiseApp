@@ -89,11 +89,11 @@ public class Dashboard extends AppCompatActivity {
             Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.comodo) {
-            Intent i = new Intent(Dashboard.this, registerRoom.class);
+            Intent i = new Intent(Dashboard.this, listRoom.class);
             startActivity(i);
             return true;
         } else if (id == R.id.eletronicos) {
-            Intent i = new Intent(Dashboard.this, registerAppliance.class);
+            Intent i = new Intent(Dashboard.this, listAppliance.class);
             startActivity(i);
             return true;
         } else if (id == R.id.relatorios) {
