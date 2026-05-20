@@ -2,7 +2,7 @@ package com.example.wattwiseapp;
 
 public class Users {
 
-    private int id;
+    private String id;
     private String fullname;
     private String emailAddress;
     private String password;
@@ -14,18 +14,18 @@ public class Users {
     }
 
     //construtor
-    public Users(int id, String fullname, String emailAddress, String password) {
+    public Users(String id, String fullname, String emailAddress, String password) {
         this.id = id;
         this.fullname = fullname;
         this.emailAddress = emailAddress;
         this.password = password;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
