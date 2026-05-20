@@ -2,14 +2,14 @@ package com.example.wattwiseapp;
 
 public class Room {
 
-    private int idComodo;
+    private String idComodo;
     private String nomeComodo;
     private String tipoComodo;
     private String qtdTomadas;
     private String descricao;
 
     //constructor
-    public Room(int idComodo, String nomeComodo, String tipoComodo, String qtdTomadas, String descricao) {
+    public Room(String idComodo, String nomeComodo, String tipoComodo, String qtdTomadas, String descricao) {
         this.idComodo = idComodo;
         this.nomeComodo = nomeComodo;
         this.tipoComodo = tipoComodo;
@@ -18,11 +18,11 @@ public class Room {
     }
 
     //get e set
-    public int getIdComodo() {
+    public String getIdComodo() {
         return idComodo;
     }
 
-    public void setIdComodo(int idComodo) {
+    public void setIdComodo(String idComodo) {
         this.idComodo = idComodo;
     }
 

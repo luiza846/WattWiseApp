@@ -54,24 +54,51 @@ public class registerRoom extends AppCompatActivity {
                 String strQtdTomadas = edtQtdTomadasReg.getText().toString();
                 String strDescricao = edtDescricaoReg.getText().toString();
 
-                if(strNomeComodo.isEmpty() && strTipoComodo.isEmpty() && strQtdTomadas.isEmpty() && strDescricao.isEmpty()){
+                if(strNomeComodo.isEmpty() || strTipoComodo.isEmpty() || strQtdTomadas.isEmpty() || strDescricao.isEmpty()){
 
                     txtDisplayInfoReg.setText(("All fields required"));
 
                 } else {
 
-                    Room room = new Room(
-                            0,
-                            strNomeComodo,
-                            strTipoComodo,
-                            strQtdTomadas,
-                            strDescricao
-                    );
+                    com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 
-                    dbConnect db = new dbConnect(registerRoom.this);
-                    db.addComodo(room);
+                    if (currentUser != null) {
+                        String userId = currentUser.getUid();
 
-                    txtDisplayInfoReg.setText("Room registered successfully!");
+                        com.google.firebase.database.DatabaseReference comodoRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                                .getReference("Usuarios")
+                                .child(userId)
+                                .child("Comodos")
+                                .push();
+
+                        String idGeradoPeloFirebase = comodoRef.getKey();
+
+
+                        Room room = new Room(
+                                idGeradoPeloFirebase,
+                                strNomeComodo,
+                                strTipoComodo,
+                                strQtdTomadas,
+                                strDescricao
+                        );
+
+                        comodoRef.setValue(room)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        txtDisplayInfoReg.setText("Room registered sucessfully!");
+
+                                        edtNomeComodoReg.setText("");
+                                        edtQtdTomadasReg.setText("");
+                                        edtDescricaoReg.setText("");
+
+                                    } else {
+                                        txtDisplayInfoReg.setText("Erro ao salvar: " + task.getException().getLocalizedMessage());
+                                    }
+                                });
+
+                    } else {
+                        txtDisplayInfoReg.setText("Erro: Nenhum usuário autenticado no app.");
+                    }
 
                 }
 
