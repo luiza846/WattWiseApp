@@ -54,7 +54,7 @@ public class register extends AppCompatActivity {
 
                 if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty()){
 
-                    txtDisplayInfoReg.setText("All fields required");
+                    txtDisplayInfoReg.setText("Preencha todos os campos!");
 
                 } else {
 
@@ -95,7 +95,7 @@ public class register extends AppCompatActivity {
                                             });
 
                                     // conta foi criada no console do Firebase.
-                                    txtDisplayInfoReg.setText("User registered successfully!");
+                                    txtDisplayInfoReg.setText("Usuário registrado com sucesso!");
 
                                 } else {
                                     txtDisplayInfoReg.setText("Erro na conta: " + task.getException().getLocalizedMessage());

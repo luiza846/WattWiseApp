@@ -58,7 +58,7 @@ public class registerAppliance extends AppCompatActivity {
 
                 if(strNomeEletro.isEmpty() || strPotencia.isEmpty() || strDescricaoEletro.isEmpty() || strTipoEletro.isEmpty() || strEletroComodo.isEmpty()){
 
-                    txtDisplayInfoReg.setText(("All fields required"));
+                    txtDisplayInfoReg.setText(("Preencha todos os campos!"));
 
                 } else {
 

@@ -56,7 +56,7 @@ public class registerRoom extends AppCompatActivity {
 
                 if(strNomeComodo.isEmpty() || strTipoComodo.isEmpty() || strQtdTomadas.isEmpty() || strDescricao.isEmpty()){
 
-                    txtDisplayInfoReg.setText(("All fields required"));
+                    txtDisplayInfoReg.setText(("Preencha todos os campos!"));
 
                 } else {
 
@@ -85,7 +85,7 @@ public class registerRoom extends AppCompatActivity {
                         comodoRef.setValue(room)
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
-                                        txtDisplayInfoReg.setText("Room registered sucessfully!");
+                                        txtDisplayInfoReg.setText("Cômodo registrado com sucesso!");
 
                                         edtNomeComodoReg.setText("");
                                         edtQtdTomadasReg.setText("");
