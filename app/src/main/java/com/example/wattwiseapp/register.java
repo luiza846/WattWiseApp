@@ -79,16 +79,19 @@ public class register extends AppCompatActivity {
                                     //salvando no realtime database
                                     com.google.firebase.database.FirebaseDatabase.getInstance().getReference("Usuarios")
                                             .child(userId)
-                                            .setValue(user).addOnCompleteListener(taskBanco -> {
+                                            .setValue(user)
+                                            .addOnCompleteListener(taskBanco -> {
                                                 if (taskBanco.isSuccessful()) {
                                                     txtDisplayInfoReg.setText("Conta e perfil salvos com sucesso!");
 
                                                     Intent i  = new Intent(register.this, MainActivity.class);
                                                     startActivity(i);
                                                     finish();
+
                                                 } else {
                                                     txtDisplayInfoReg.setText("Erro no banco: " + taskBanco.getException().getLocalizedMessage());
                                                 }
+
                                             });
 
                                     // conta foi criada no console do Firebase.
@@ -97,6 +100,7 @@ public class register extends AppCompatActivity {
                                 } else {
                                     txtDisplayInfoReg.setText("Erro na conta: " + task.getException().getLocalizedMessage());
                                 }
+
                             });
 
                 }
