@@ -88,7 +88,7 @@ public class registerAppliance extends AppCompatActivity {
                         aparelhoRef.setValue(appliance)
                                 .addOnCompleteListener( task ->  {
                                     if (task.isSuccessful()) {
-                                        txtDisplayInfoReg.setText("Appliance registered sucessfully!");
+                                        txtDisplayInfoReg.setText("Eletrodoméstico registrado com sucesso!");
 
                                         edtNomeEletroReg.setText("");
                                         edtPotenciaReg.setText("");
