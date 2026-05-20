@@ -56,26 +56,53 @@ public class registerAppliance extends AppCompatActivity {
                 String strTipoEletro = edtTipoEletroReg.getSelectedItem().toString();
                 String strEletroComodo = edtEletroComodoReg.getSelectedItem().toString();
 
-                if(strNomeEletro.isEmpty() && strPotencia.isEmpty() && strDescricaoEletro.isEmpty() && strTipoEletro.isEmpty() && strEletroComodo.isEmpty()){
+                if(strNomeEletro.isEmpty() || strPotencia.isEmpty() || strDescricaoEletro.isEmpty() || strTipoEletro.isEmpty() || strEletroComodo.isEmpty()){
 
                     txtDisplayInfoReg.setText(("All fields required"));
 
                 } else {
 
-                    // chamar a classe
-                    Appliance appliance = new Appliance(
-                            0,
-                            strNomeEletro,
-                            strPotencia,
-                            strDescricaoEletro,
-                            strTipoEletro,
-                            strEletroComodo
-                    );
+                    com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 
-                    dbConnect db = new dbConnect(registerAppliance.this);
-                    db.addAppliance(appliance);
+                    if (currentUser != null) {
+                        String userId = currentUser.getUid();
 
-                    txtDisplayInfoReg.setText("Appliance registered successfully!");
+                        com.google.firebase.database.DatabaseReference aparelhoRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                                .getReference("Usuarios")
+                                .child(userId)
+                                .child("Eletronicos")
+                                .push();
+
+                        String idGeradoPeloFirebase = aparelhoRef.getKey();
+
+
+                        Appliance appliance = new Appliance(
+                                idGeradoPeloFirebase,
+                                strNomeEletro,
+                                strTipoEletro,
+                                strEletroComodo,
+                                strPotencia,
+                                strDescricaoEletro
+                        );
+
+                        aparelhoRef.setValue(appliance)
+                                .addOnCompleteListener( task ->  {
+                                    if (task.isSuccessful()) {
+                                        txtDisplayInfoReg.setText("Appliance registered sucessfully!");
+
+                                        edtNomeEletroReg.setText("");
+                                        edtPotenciaReg.setText("");
+                                        edtDescricaoEletroReg.setText("");
+
+                                    } else {
+                                        txtDisplayInfoReg.setText("Erro ao salvar: " + task.getException().getLocalizedMessage());
+                                    }
+                                });
+
+                    } else {
+                        txtDisplayInfoReg.setText("Erro: Nenhum usuário autenticado no app.");
+                    }
+
 
                 }
 

@@ -2,7 +2,7 @@ package com.example.wattwiseapp;
 
 public class Appliance {
 
-    private int idEletro;
+    private String idEletro;
     private String nomeEletro;
     private String TipoEletro;
     private String comodoEletro;
@@ -10,7 +10,7 @@ public class Appliance {
     private String descricaoEletro;
 
     //construtor
-    public Appliance(int idEletro, String nomeEletro, String tipoEletro, String comodoEletro, String potenciaEletro, String descricaoEletro) {
+    public Appliance(String idEletro, String nomeEletro, String tipoEletro, String comodoEletro, String potenciaEletro, String descricaoEletro) {
         this.idEletro = idEletro;
         this.nomeEletro = nomeEletro;
         TipoEletro = tipoEletro;
@@ -20,11 +20,11 @@ public class Appliance {
     }
 
     //get e set
-    public int getIdEletro() {
+    public String getIdEletro() {
         return idEletro;
     }
 
-    public void setIdEletro(int idEletro) {
+    public void setIdEletro(String idEletro) {
         this.idEletro = idEletro;
     }
 
