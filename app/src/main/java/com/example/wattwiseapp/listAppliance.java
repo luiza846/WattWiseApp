@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.database.DatabaseError;
 
 public class listAppliance extends AppCompatActivity {
 
@@ -31,6 +32,45 @@ public class listAppliance extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // listagem
+
+        com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+
+            com.google.firebase.database.DatabaseReference eletrosRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                    .getReference("Usuarios")
+                    .child(userId)
+                    .child("Eletronicos");
+
+
+            eletrosRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+                @Override
+                public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+
+
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                    android.util.Log.e("FirebaseError", "Erro ao buscar Eletrodomésticos: " + error.getMessage());
+
+                }
+
+
+            });
+
+        }
+
+
+
+
+
     }
 
     // menu
@@ -79,7 +119,5 @@ public class listAppliance extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    // listar pedro
 
 }
