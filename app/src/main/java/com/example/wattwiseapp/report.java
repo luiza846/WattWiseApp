@@ -2,10 +2,13 @@ package com.example.wattwiseapp;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -28,11 +31,16 @@ public class report extends AppCompatActivity {
     //tabela
     private TableLayout tableLayout;
 
+    Spinner edtPeriodo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_report);
+
+        //campos
+        edtPeriodo = findViewById(R.id.edtPeriodo);
 
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -51,7 +59,7 @@ public class report extends AppCompatActivity {
         dadosFicticios.add(new String[]{"Lavanderia", "Máquina de Lavar", "45 kWh"});
 
         // chamar a funcao
-        inserirDadosFicticiosNaTabela(dadosFicticios);
+        inserirDadosTabela(dadosFicticios);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -102,49 +110,73 @@ public class report extends AppCompatActivity {
     }
 
     // dados provisorio (gerado pela ia) Pedro realizar a consulta no banco de dados
-    private void inserirDadosFicticiosNaTabela(List<String[]> listaItens) {
+
+    private void inserirDadosTabela(List<String[]> listaItens) {
 
         for (int i = 0; i < listaItens.size(); i++) {
             String[] item = listaItens.get(i);
 
-            // cria a linha física da tabela
             TableRow row = new TableRow(this);
-            row.setPadding(10, 20, 10, 20);
+            row.setPadding(10, 25, 10, 25);
 
-            // linhas alternadas (Zebradas) para facilitar a leitura
             if (i % 2 == 0) {
-                row.setBackgroundColor(Color.parseColor("#F9F9F9")); // cinza bem clarinho
+                row.setBackgroundColor(Color.parseColor("#F9F9F9"));
             } else {
-                row.setBackgroundColor(Color.parseColor("#FFFFFF")); // branco
+                row.setBackgroundColor(Color.parseColor("#FFFFFF"));
             }
 
-            //CÔMODO
+            // Configuração de LayoutParams para aplicar os pesos via código
+            TableRow.LayoutParams paramsOrigem = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.6f);
+            TableRow.LayoutParams paramsImpacto = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
+            TableRow.LayoutParams paramsCusto = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
+
+            // origem
+            android.widget.LinearLayout containerOrigem = new android.widget.LinearLayout(this);
+            containerOrigem.setOrientation(android.widget.LinearLayout.VERTICAL);
+            containerOrigem.setGravity(Gravity.CENTER);
+            containerOrigem.setLayoutParams(paramsOrigem);
+
+            TextView txtEletrodomestico = new TextView(this);
+            txtEletrodomestico.setText(item[1]);
+            txtEletrodomestico.setTextColor(Color.BLACK);
+            txtEletrodomestico.setTypeface(null, android.graphics.Typeface.BOLD);
+            txtEletrodomestico.setTextSize(15);
+            txtEletrodomestico.setGravity(Gravity.CENTER);
+
             TextView txtComodo = new TextView(this);
             txtComodo.setText(item[0]);
-            txtComodo.setTextColor(Color.BLACK);
-            txtComodo.setTextSize(15);
+            txtComodo.setTextColor(Color.GRAY);
+            txtComodo.setTextSize(12);
             txtComodo.setGravity(Gravity.CENTER);
 
-            //ELETRODOMÉSTICO
-            TextView txtEletro = new TextView(this);
-            txtEletro.setText(item[1]);
-            txtEletro.setTextColor(Color.BLACK);
-            txtEletro.setTextSize(15);
-            txtEletro.setGravity(Gravity.CENTER);
+            containerOrigem.addView(txtEletrodomestico);
+            containerOrigem.addView(txtComodo);
 
-            //CONSUMO
+            // consumo (kWh)
             TextView txtConsumo = new TextView(this);
             txtConsumo.setText(item[2]);
-            txtConsumo.setTextColor(Color.parseColor("#2F3B75"));
+            txtConsumo.setTextColor(Color.BLACK);
             txtConsumo.setTextSize(15);
             txtConsumo.setGravity(Gravity.CENTER);
+            txtConsumo.setLayoutParams(paramsImpacto);
 
-            row.addView(txtComodo);
-            row.addView(txtEletro);
+            // custo
+            TextView txtCusto = new TextView(this);
+            // calcula o custo (REVISAR)
+            txtCusto.setText("R$ " + (45.50 + (i * 12)));
+            txtCusto.setTextColor(Color.parseColor("#2F3B75"));
+            txtCusto.setTypeface(null, android.graphics.Typeface.BOLD);
+            txtCusto.setTextSize(15);
+            txtCusto.setGravity(Gravity.CENTER);
+            txtCusto.setLayoutParams(paramsCusto);
+
+            // add linha
+            row.addView(containerOrigem);
             row.addView(txtConsumo);
-
+            row.addView(txtCusto);
 
             tableLayout.addView(row);
         }
     }
+
 }

@@ -8,6 +8,7 @@
         <item>Banheiro</item>
         <item>Garagem</item>
         <item>Área Externa</item>
+        <item>Sala de Jogos</item>
     </string-array>
     <string-array name="tipos_eletrodomesticos">
         <item>Geladeira</item>
@@ -19,5 +20,10 @@
         <item>Ar-condicionado</item>
         <item>Ventilador</item>
         <item>Chuveiro elétrico</item>
+    </string-array>
+    <string-array name="periodo">
+        <item>15 dias</item>
+        <item>30 dias</item>
+        <item>90 dias</item>
     </string-array>
 </resources>

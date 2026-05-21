@@ -21,47 +21,95 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Spinner
+        android:id="@+id/edtPeriodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="17dp"
+        android:entries="@array/periodo"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/tableAppliance"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.11"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRelatorio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gerar relatório"
+        app:icon="@drawable/outline_docs_24"
+        app:iconGravity="textStart"
+        app:iconTint="#FFFFFF"
+        android:backgroundTint="#2F3B75"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/tableAppliance"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.923"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.6" />
+
     <TableLayout
         android:id="@+id/tableAppliance"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="16dp"
-        android:stretchColumns="0,1,2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/edtPeriodo">
 
-        <!-- LINHA 1: CABEÇALHO DA TABELA (Fica fixo no topo) -->
         <TableRow
             android:background="#482F3B75"
-            android:padding="10dp">
+            android:padding="10dp"
+            android:weightSum="4">
 
             <TextView
-                android:text="Comodo"
-                android:textColor="#000000"
-                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_weight="1.6"
                 android:gravity="center"
-                android:textSize="16sp" />
-
-            <TextView
-                android:text="Eletrodoméstico"
+                android:text="Origem"
                 android:textColor="#000000"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:gravity="center" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1.2"
+                android:gravity="center"
                 android:text="Consumo"
                 android:textColor="#000000"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:gravity="center" />
-        </TableRow>
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-        <!-- As próximas linhas com os dados do banco serão inseridas aqui via Java -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:text="Custo"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </TableRow>
 
     </TableLayout>
 
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="269dp"
+        android:layout_marginBottom="16dp"
+        android:text="Selecione o período:"
+        app:layout_constraintBottom_toTopOf="@+id/edtPeriodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
