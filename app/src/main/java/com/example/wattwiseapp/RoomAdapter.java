@@ -40,7 +40,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
 
         holder.textTipoComodo.setText(room.getTipoComodo());
 
-        holder.btnEditar.setOnClickListener(v -> {
+        holder.btnExcluir.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Preparando exclusão: " + room.getNomeComodo(), Toast.LENGTH_SHORT).show();
         });
 

@@ -18,7 +18,9 @@ import com.google.firebase.database.DatabaseError;
 
 public class listRoom extends AppCompatActivity {
 
-
+    private androidx.recyclerview.widget.RecyclerView recyclerView;
+    private RoomAdapter adapter;
+    private java.util.List<Room> listaDeComodos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,15 @@ public class listRoom extends AppCompatActivity {
             return insets;
         });
 
+        listaDeComodos = new java.util.ArrayList<>();
+
+        recyclerView = findViewById(R.id.listaComodos);
+
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+
+        adapter = new RoomAdapter(listaDeComodos);
+        recyclerView.setAdapter(adapter);
+
 
         // listagem
 
@@ -52,18 +63,31 @@ public class listRoom extends AppCompatActivity {
 
             comodosRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
                 @Override
-                public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot snapshot) {
 
+                    listaDeComodos.clear();
+
+                    for (com.google.firebase.database.DataSnapshot comodoSnapshot : snapshot.getChildren()) {
+
+                        Room room = comodoSnapshot.getValue(Room.class);
+
+                        if (room != null) {
+
+                            listaDeComodos.add(room);
+
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
 
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
+                public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) {
 
                     android.util.Log.e("FirebaseError", "Erro ao buscar cômodos: " + error.getMessage());
 
                 }
-
 
             });
 
@@ -117,8 +141,6 @@ public class listRoom extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    // listar pedro
 
 
 }
