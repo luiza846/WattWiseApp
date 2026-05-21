@@ -24,12 +24,17 @@ import com.github.mikephil.charting.data.LineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.appbar.MaterialToolbar;
 
 public class Dashboard extends AppCompatActivity {
 
     //grafico
     private LineChart lineChart;
+    private PieChart pieChartConsumo;
     //botoes
     Button btnRegisterRoom, btnRegisterAppliance;
 
@@ -46,25 +51,31 @@ public class Dashboard extends AppCompatActivity {
         lineChart = findViewById(R.id.energyChart);
         configurarGrafico();
 
+        // griafico (pie)
+        pieChartConsumo = findViewById(R.id.pieChartConsumo);
+        configurarGraficoRosca();
+
         //botoes
-        btnRegisterRoom = findViewById(R.id.btnRegisterRoom);
-        btnRegisterAppliance = findViewById(R.id.btnRegisterAppliance);
+//        btnRegisterRoom = findViewById(R.id.btnRegisterRoom);
+//        btnRegisterAppliance = findViewById(R.id.btnRegisterAppliance);
+//
+//        btnRegisterRoom.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent i = new Intent(Dashboard.this, registerRoom.class);
+//                startActivity(i);
+//            }
+//        });
+//
+//        btnRegisterAppliance.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent i = new Intent(Dashboard.this, registerAppliance.class);
+//                startActivity(i);
+//            }
+//        });
 
-        btnRegisterRoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Dashboard.this, registerRoom.class);
-                startActivity(i);
-            }
-        });
 
-        btnRegisterAppliance.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Dashboard.this, registerAppliance.class);
-                startActivity(i);
-            }
-        });
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -142,5 +153,47 @@ public class Dashboard extends AppCompatActivity {
         lineChart.getDescription().setText("Monitoramento Diário");
         lineChart.animateX(1000); // Animação de entrada
         lineChart.invalidate(); // Atualiza o gráfico
+    }
+
+    private void configurarGraficoRosca() {
+        // 1. Ativa o "buraco" no meio para virar um gráfico Doughnut
+        pieChartConsumo.setDrawHoleEnabled(true);
+        pieChartConsumo.setHoleRadius(60f); // Tamanho da rosca (em %)
+        pieChartConsumo.setTransparentCircleRadius(65f); // Efeito de sombra interna
+
+        // 2. Adiciona o texto centralizado (Foco em Conscientização: Gasto Total)
+        pieChartConsumo.setCenterText("Total de Hoje\nR$ 18,50");
+        pieChartConsumo.setCenterTextSizePixels(18f);
+        pieChartConsumo.setCenterTextColor(Color.DKGRAY);
+
+        // 3. Criando a lista de dados (Entries)
+        ArrayList<PieEntry> entradas = new ArrayList<>();
+        entradas.add(new PieEntry(40f, "Cozinha"));
+        entradas.add(new PieEntry(35f, "Quarto"));
+        entradas.add(new PieEntry(25f, "Banheiro"));
+
+        // 4. Configurando o DataSet (Visual das fatias)
+        PieDataSet dataSet = new PieDataSet(entradas, "Consumo por Cômodo");
+        dataSet.setSliceSpace(3f); // Espaçamento elegante entre as fatias
+
+        // Definindo as cores das fatias usando Hexadecimal
+        ArrayList<Integer> cores = new ArrayList<>();
+        cores.add(Color.parseColor("#2ECC71")); // Verde (Cozinha)
+        cores.add(Color.parseColor("#3498DB")); // Azul (Quarto)
+        cores.add(Color.parseColor("#E74C3C")); // Vermelho (Banheiro)
+        dataSet.setColors(cores);
+
+        // Configuração dos textos dentro das fatias
+        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextColor(Color.WHITE);
+
+        // 5. Junta tudo e renderiza na tela
+        PieData data = new PieData(dataSet);
+        pieChartConsumo.setData(data);
+
+        // Ajustes estéticos finais de UX
+        pieChartConsumo.getDescription().setEnabled(false); // Remove legenda padrão do canto
+        pieChartConsumo.getLegend().setEnabled(true); // Ativa a legenda dos cômodos
+        pieChartConsumo.animateY(1400); // Animação de entrada bem fluida
     }
 }
