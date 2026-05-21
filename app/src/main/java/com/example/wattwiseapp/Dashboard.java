@@ -97,17 +97,20 @@ public class Dashboard extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.relatorios) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(Dashboard.this, report.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(Dashboard.this, metas.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(Dashboard.this, settings.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
-            return true;
+            Intent i = new Intent(Dashboard.this, MainActivity.class);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);

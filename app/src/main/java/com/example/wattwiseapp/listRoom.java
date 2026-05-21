@@ -44,7 +44,7 @@ public class listRoom extends AppCompatActivity {
     // menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_principal, menu);
+        getMenuInflater().inflate(R.menu.menu_reg_room, menu);
         return true;
     }
 
@@ -64,16 +64,24 @@ public class listRoom extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.relatorios) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(listRoom.this, report.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(listRoom.this, metas.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(listRoom.this, settings.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(listRoom.this, MainActivity.class);
+            startActivity(i);
+            return true;
+        }  else if (id == R.id.menu_cadastrar) {
+            Intent i = new Intent(listRoom.this, registerRoom.class);
+            startActivity(i);
             return true;
         }
 

@@ -12,6 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WattWiseApp">
         <activity
+            android:name=".settings"
+            android:exported="false" />
+        <activity
+            android:name=".metas"
+            android:exported="false" />
+        <activity
+            android:name=".report"
+            android:exported="false" />
+        <activity
+            android:name=".relatorios"
+            android:exported="false" />
+        <activity
             android:name=".listRoom"
             android:exported="false" />
         <activity

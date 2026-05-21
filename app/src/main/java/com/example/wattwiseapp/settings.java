@@ -15,13 +15,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-public class listAppliance extends AppCompatActivity {
+public class settings extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_list_appliance);
+        setContentView(R.layout.activity_settings);
+
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -36,7 +37,7 @@ public class listAppliance extends AppCompatActivity {
     // menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_reg_appliance, menu);
+        getMenuInflater().inflate(R.menu.menu_principal, menu);
         return true;
     }
 
@@ -48,38 +49,30 @@ public class listAppliance extends AppCompatActivity {
             Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.comodo) {
-            Intent i = new Intent(listAppliance.this, listRoom.class);
+            Intent i = new Intent(settings.this, listRoom.class);
             startActivity(i);
             return true;
         } else if (id == R.id.eletronicos) {
-            Intent i = new Intent(listAppliance.this, listAppliance.class);
+            Intent i = new Intent(settings.this, listAppliance.class);
             startActivity(i);
             return true;
         } else if (id == R.id.relatorios) {
-            Intent i = new Intent(listAppliance.this, report.class);
+            Intent i = new Intent(settings.this, report.class);
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(listAppliance.this, metas.class);
+            Intent i = new Intent(settings.this, metas.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {
-            Intent i = new Intent(listAppliance.this, settings.class);
+            Intent i = new Intent(settings.this, settings.class);
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(listAppliance.this, MainActivity.class);
+            Intent i = new Intent(settings.this, MainActivity.class);
             startActivity(i);
-            return true;
-        } else if (id == R.id.menu_cadastrar) {
-            Intent i = new Intent(listAppliance.this, registerAppliance.class);
-            startActivity(i);
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    // listar pedro
-
 }
