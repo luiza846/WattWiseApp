@@ -45,6 +45,7 @@ public class listRoom extends AppCompatActivity {
         recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
 
         adapter = new RoomAdapter(listaDeComodos);
+
         recyclerView.setAdapter(adapter);
 
 

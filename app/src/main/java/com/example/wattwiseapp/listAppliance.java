@@ -6,24 +6,38 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class listAppliance extends AppCompatActivity {
+
+    private RecyclerView recyclerViewEletro;
+    private ApplianceAdapter adapter;
+    private List<Appliance> applianceList;
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_appliance);
-        // menu
+
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -33,91 +47,108 @@ public class listAppliance extends AppCompatActivity {
             return insets;
         });
 
-        // listagem
+        // ---CONFIGURAÇÃO DO RECYCLERVIEW ---
+        recyclerViewEletro = findViewById(R.id.listaEletrodomesticos);
+        recyclerViewEletro.setLayoutManager(new LinearLayoutManager(this));
 
-        com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        applianceList = new ArrayList<>();
+        adapter = new ApplianceAdapter(this, applianceList);
+        recyclerViewEletro.setAdapter(adapter);
+
+
+        // --- CONEXÃO COM O FIREBASE (Mock Data - Dados Fictícios) ---
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
-            com.google.firebase.database.DatabaseReference eletrosRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+            databaseReference = FirebaseDatabase.getInstance()
                     .getReference("Usuarios")
                     .child(userId)
                     .child("Eletronicos");
 
+            carregarEletrodomesticos();
 
-            eletrosRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+        } else {
+            Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show();
+        }
+    }
+        private void carregarEletrodomesticos() {
+            databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    applianceList.clear();
 
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
 
+                        String id = itemSnapshot.getKey();
+                        String nome = itemSnapshot.child("nomeEletro").getValue(String.class);
+                        String tipo = itemSnapshot.child("tipoEletro").getValue(String.class);
+                        String comodo = itemSnapshot.child("comodoEletro").getValue(String.class);
+                        String potencia = String.valueOf(itemSnapshot.child("potenciaEletro").getValue());
+                        String desc = itemSnapshot.child("descricaoEletro").getValue(String.class);
 
+                        if (nome != null) {
+                            Appliance appliance = new Appliance(id, nome, tipo, comodo, potencia, desc);
+                            applianceList.add(appliance);
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
 
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
-                    android.util.Log.e("FirebaseError", "Erro ao buscar Eletrodomésticos: " + error.getMessage());
-
+                    Toast.makeText(listAppliance.this, "Erro ao carregar dados: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-
-
             });
-
         }
 
-
-
-
-
-    }
-
-    // menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_reg_appliance, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.sensor) {
-            Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (id == R.id.comodo) {
-            Intent i = new Intent(listAppliance.this, listRoom.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.eletronicos) {
-            Intent i = new Intent(listAppliance.this, listAppliance.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.relatorios) {
-            Intent i = new Intent(listAppliance.this, report.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.metas) {
-            Intent i = new Intent(listAppliance.this, metas.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.configuracao) {
-            Intent i = new Intent(listAppliance.this, settings.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.logout) {
-            Intent i = new Intent(listAppliance.this, MainActivity.class);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.menu_cadastrar) {
-            Intent i = new Intent(listAppliance.this, registerAppliance.class);
-            startActivity(i);
+        // --- CONFIGURAÇÃO DO MENU ---
+        @Override
+        public boolean onCreateOptionsMenu (Menu menu){
+            getMenuInflater().inflate(R.menu.menu_reg_appliance, menu);
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
-    }
+        @Override
+        public boolean onOptionsItemSelected (@NonNull MenuItem item){
+            int id = item.getItemId();
 
-}
+            if (id == R.id.sensor) {
+                Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.comodo) {
+                Intent i = new Intent(listAppliance.this, listRoom.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.eletronicos) {
+                Intent i = new Intent(listAppliance.this, listAppliance.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.relatorios) {
+                Intent i = new Intent(listAppliance.this, report.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.metas) {
+                Intent i = new Intent(listAppliance.this, metas.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.configuracao) {
+                Intent i = new Intent(listAppliance.this, settings.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.logout) {
+                Intent i = new Intent(listAppliance.this, MainActivity.class);
+                startActivity(i);
+                return true;
+            } else if (id == R.id.menu_cadastrar) {
+                Intent i = new Intent(listAppliance.this, registerAppliance.class);
+                startActivity(i);
+                return true;
+            }
+
+            return super.onOptionsItemSelected(item);
+        }
+    }
