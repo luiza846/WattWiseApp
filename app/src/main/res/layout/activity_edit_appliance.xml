@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".editAppliance">
+
+    <!-- Toolbar igual ao cadastro -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#2F3B75"
+        android:title="Editar Eletrodoméstico"
+        android:titleTextColor="@android:color/white"
+        app:popupTheme="@style/MenuBranco"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Título da tela -->
+    <TextView
+        android:id="@+id/textViewTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:text="EDITAR ELETRODOMÉSTICO"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <!-- Campo Nome -->
+    <EditText
+        android:id="@+id/editNomeEletro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:hint="Nome do eletrodoméstico"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitulo"
+        app:layout_constraintBottom_toTopOf="@+id/editTipoEletro" />
+
+    <!-- Spinner Tipo -->
+    <Spinner
+        android:id="@+id/editTipoEletro"
+        android:layout_width="209dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColor="#000000"
+        android:entries="@array/tipos_eletrodomesticos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editNomeEletro"
+        app:layout_constraintBottom_toTopOf="@+id/editComodoEletro" />
+
+    <!-- Spinner Cômodo (dinâmico — populado via Firebase no Java) -->
+    <Spinner
+        android:id="@+id/editComodoEletro"
+        android:layout_width="209dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTipoEletro"
+        app:layout_constraintBottom_toTopOf="@+id/editPotenciaEletro" />
+
+    <!-- Campo Potência -->
+    <EditText
+        android:id="@+id/editPotenciaEletro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:hint="Potência em W (Watts)"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editComodoEletro"
+        app:layout_constraintBottom_toTopOf="@+id/editDescricaoEletro" />
+
+    <!-- Campo Descrição -->
+    <EditText
+        android:id="@+id/editDescricaoEletro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:ems="10"
+        android:hint="Descrição"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editPotenciaEletro"
+        app:layout_constraintBottom_toTopOf="@+id/btnSalvarEdicao" />
+
+    <!-- Botão Salvar -->
+    <Button
+        android:id="@+id/btnSalvarEdicao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="#2F3B75"
+        android:text="Salvar"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,6 +30,8 @@
             android:name=".listAppliance"
             android:exported="false" />
         <activity
+            android:name=".editAppliance" />
+        <activity
             android:name=".registerAppliance"
             android:exported="false" />
         <activity

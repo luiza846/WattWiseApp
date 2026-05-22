@@ -52,7 +52,32 @@ public class listAppliance extends AppCompatActivity {
         recyclerViewEletro.setLayoutManager(new LinearLayoutManager(this));
 
         applianceList = new ArrayList<>();
-        adapter = new ApplianceAdapter(this, applianceList);
+
+        adapter = new ApplianceAdapter(this, applianceList, new ApplianceAdapter.OnApplianceActionListener() {
+            @Override
+            public void onEdit(Appliance appliance) {
+                Intent intent = new Intent(listAppliance.this, editAppliance.class);
+                intent.putExtra("idEletro", appliance.getIdEletro());
+                intent.putExtra("nomeEletro", appliance.getNomeEletro());
+                intent.putExtra("tipoEletro", appliance.getTipoEletro());
+                intent.putExtra("comodoEletro", appliance.getComodoEletro());
+                intent.putExtra("potenciaEletro", appliance.getPotenciaEletro());
+                intent.putExtra("descricaoEletro", appliance.getDescricaoEletro());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDelete(String idEletro) {
+                databaseReference.child(idEletro).removeValue()
+                        .addOnSuccessListener(unused ->
+                                Toast.makeText(listAppliance.this, "Eletrodoméstico excluído!", Toast.LENGTH_SHORT).show()
+                        )
+                        .addOnFailureListener(e ->
+                                Toast.makeText(listAppliance.this, "Erro ao excluir: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+            }
+        });
+
         recyclerViewEletro.setAdapter(adapter);
 
 
@@ -74,7 +99,9 @@ public class listAppliance extends AppCompatActivity {
         }
     }
         private void carregarEletrodomesticos() {
+
             databaseReference.addValueEventListener(new ValueEventListener() {
+
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     applianceList.clear();
@@ -104,6 +131,7 @@ public class listAppliance extends AppCompatActivity {
                 }
             });
         }
+
 
         // --- CONFIGURAÇÃO DO MENU ---
         @Override
