@@ -67,7 +67,7 @@ public class editAppliance extends AppCompatActivity {
         editPotencia.setText(potencia);
         editDescricao.setText(descricao);
 
-        // Pré-seleciona o tipo no Spinner estático (igual ao cadastro)
+        // Pré-seleciona o tipo no Spinner estático
         if (tipo != null) {
             ArrayAdapter tipoAdapter = (ArrayAdapter) spinnerTipo.getAdapter();
             if (tipoAdapter != null) {
