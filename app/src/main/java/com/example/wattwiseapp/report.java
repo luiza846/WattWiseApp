@@ -95,10 +95,12 @@ public class report extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(report.this, metas.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {
-            Toast.makeText(this, "Clicou em Sair", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(report.this, settings.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.logout) {
             Intent i = new Intent(report.this, MainActivity.class);
