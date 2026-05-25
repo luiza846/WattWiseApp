@@ -88,7 +88,7 @@ public class editAppliance extends AppCompatActivity {
         eletroRef = FirebaseDatabase.getInstance()
                 .getReference("Usuarios")
                 .child(userId)
-                .child("Eletronicos") // ← mesmo nome que você usa na listAppliance
+                .child("Eletronicos")
                 .child(idEletro);
 
         // Carrega os cômodos do Firebase dinamicamente
