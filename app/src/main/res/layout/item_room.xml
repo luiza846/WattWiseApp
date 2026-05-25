@@ -37,6 +37,16 @@
                 android:text="Tipo"
                 android:textColor="#666666"
                 android:textSize="14sp" />
+
+            <!-- TextView de tomadas adicionado -->
+            <TextView
+                android:id="@+id/editQtdTomadas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 tomadas"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

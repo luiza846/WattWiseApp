@@ -1,24 +1,37 @@
 package com.example.wattwiseapp;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
 
 public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder> {
 
+    private Context context;
+
     private List<Room> roomList;
 
-    public RoomAdapter(List<Room> roomList) {
+    private OnRoomActionListener listener;
+
+    public interface OnRoomActionListener {
+        void onEdit(Room room);
+        void onDelete(String idComodo);
+    }
+
+    public RoomAdapter(Context context, List<Room> roomList, OnRoomActionListener listener) {
+        this.context = context;
         this.roomList = roomList;
+        this.listener = listener;
     }
 
 
@@ -36,16 +49,18 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
 
         Room room = roomList.get(position);
 
-        holder.textNomeComodo.setText(room.getNomeComodo());
+        holder.tvNome.setText(room.getNomeComodo());
 
-        holder.textTipoComodo.setText(room.getTipoComodo());
+        holder.tvTomadas.setText(room.getQtdTomadas() + " tomadas");
 
-        holder.btnExcluir.setOnClickListener(v -> {
-            Toast.makeText(v.getContext(), "Preparando exclusão: " + room.getNomeComodo(), Toast.LENGTH_SHORT).show();
+        holder.tvTipo.setText(room.getTipoComodo());
+
+        holder.btnEditar.setOnClickListener(view -> {
+            listener.onEdit(room);
         });
 
-        holder.btnEditar.setOnClickListener(v -> {
-            Toast.makeText(v.getContext(), "Preparando edição: " + room.getNomeComodo(), Toast.LENGTH_SHORT).show();
+        holder.btnExcluir.setOnClickListener(v -> {
+            listener.onDelete(room.getIdComodo());
         });
 
     }
@@ -58,13 +73,15 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
 
 
     public static class RoomViewHolder extends RecyclerView.ViewHolder {
-        TextView textNomeComodo, textTipoComodo;
-        Button btnEditar, btnExcluir;
+        TextView tvNome, tvTipo, tvTomadas;
+        MaterialButton btnEditar, btnExcluir;
 
         public RoomViewHolder(@NonNull View itemView) {
             super(itemView);
-            textNomeComodo = itemView.findViewById(R.id.textNomeComodo);
-            textTipoComodo = itemView.findViewById(R.id.textTipoComodo);
+
+            tvNome = itemView.findViewById(R.id.textNomeComodo);
+            tvTipo = itemView.findViewById(R.id.textTipoComodo);
+            tvTomadas = itemView.findViewById(R.id.editQtdTomadas);
             btnEditar = itemView.findViewById(R.id.btnEditar);
             btnExcluir = itemView.findViewById(R.id.btnExcluir);
         }

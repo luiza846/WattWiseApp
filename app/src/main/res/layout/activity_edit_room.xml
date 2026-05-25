@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".editRoom">
+
+    <!-- Toolbar igual ao cadastro -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#2F3B75"
+        android:title="Editar Cômodo"
+        android:titleTextColor="@android:color/white"
+        app:popupTheme="@style/MenuBranco"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Título da tela -->
+    <TextView
+        android:id="@+id/textViewTituloEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="EDITAR CÔMODO"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <!-- Campo Nome -->
+    <EditText
+        android:id="@+id/editNomeComodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="20dp"
+        android:ems="10"
+        android:hint="Nome do cômodo"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintBottom_toTopOf="@+id/editTipoComodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Spinner Tipo (estático, igual ao cadastro) -->
+    <Spinner
+        android:id="@+id/editTipoComodo"
+        android:layout_width="209dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:entries="@array/tipos_comodos"
+        app:layout_constraintBottom_toTopOf="@+id/editQtdTomadasComodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editNomeComodo" />
+
+    <!-- Campo Quantidade de Tomadas -->
+    <EditText
+        android:id="@+id/editQtdTomadasComodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="Quantidade de Tomadas"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintBottom_toTopOf="@+id/editDescricaoComodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTipoComodo" />
+
+    <!-- Campo Descrição -->
+    <EditText
+        android:id="@+id/editDescricaoComodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="45dp"
+        android:ems="10"
+        android:hint="Descrição"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        app:layout_constraintBottom_toTopOf="@+id/btnSalvarEdicaoComodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editQtdTomadasComodo" />
+
+    <!-- Botão Salvar -->
+    <Button
+        android:id="@+id/btnSalvarEdicaoComodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2F3B75"
+        android:text="Salvar"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editDescricaoComodo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

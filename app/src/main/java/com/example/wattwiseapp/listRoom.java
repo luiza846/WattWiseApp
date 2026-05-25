@@ -14,7 +14,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.firebase.database.DatabaseError;
 
 public class listRoom extends AppCompatActivity {
 
@@ -27,10 +26,9 @@ public class listRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_room);
-        // menu
+
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -39,64 +37,88 @@ public class listRoom extends AppCompatActivity {
         });
 
         listaDeComodos = new java.util.ArrayList<>();
-
         recyclerView = findViewById(R.id.listaComodos);
-
         recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
 
-        adapter = new RoomAdapter(listaDeComodos);
+        adapter = new RoomAdapter(this, listaDeComodos, new RoomAdapter.OnRoomActionListener() {
+            @Override
+            public void onEdit(Room room) {
+                Intent intent = new Intent(listRoom.this, editRoom.class);
+                intent.putExtra("idComodo", room.getIdComodo());
+                intent.putExtra("nomeComodo", room.getNomeComodo());
+                intent.putExtra("tipoComodo", room.getTipoComodo());
+                intent.putExtra("qtdTomadas", room.getQtdTomadas());
+                intent.putExtra("descricaoComodo", room.getDescricao());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDelete(String idComodo) {
+                com.google.firebase.auth.FirebaseUser currentUser =
+                        com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+
+                if (currentUser != null) {
+                    String userId = currentUser.getUid();
+
+                    com.google.firebase.database.FirebaseDatabase.getInstance()
+                            .getReference("Usuarios")
+                            .child(userId)
+                            .child("Comodos")
+                            .child(idComodo)
+                            .removeValue()
+                            .addOnSuccessListener(aVoid ->
+                                    Toast.makeText(listRoom.this, "Cômodo excluído!", Toast.LENGTH_SHORT).show()
+                            )
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(listRoom.this, "Erro ao excluir: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                            );
+                } else {
+                    Toast.makeText(listRoom.this, "Erro: Usuário não autenticado.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         recyclerView.setAdapter(adapter);
 
-
-        // listagem
-
-        com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        // Listagem do Firebase
+        com.google.firebase.auth.FirebaseUser currentUser =
+                com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
-            com.google.firebase.database.DatabaseReference comodosRef = com.google.firebase.database.FirebaseDatabase.getInstance()
-                    .getReference("Usuarios")
-                    .child(userId)
-                    .child("Comodos");
-
+            com.google.firebase.database.DatabaseReference comodosRef =
+                    com.google.firebase.database.FirebaseDatabase.getInstance()
+                            .getReference("Usuarios")
+                            .child(userId)
+                            .child("Comodos");
 
             comodosRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
                 @Override
-                public void onDataChange(@androidx.annotation.NonNull com.google.firebase.database.DataSnapshot snapshot) {
-
+                public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot snapshot) {
                     listaDeComodos.clear();
 
                     for (com.google.firebase.database.DataSnapshot comodoSnapshot : snapshot.getChildren()) {
-
                         Room room = comodoSnapshot.getValue(Room.class);
 
                         if (room != null) {
-
+                            // salva a key do Firebase no objeto
+                            room.setIdComodo(comodoSnapshot.getKey());
                             listaDeComodos.add(room);
-
                         }
                     }
 
                     adapter.notifyDataSetChanged();
-
                 }
 
                 @Override
-                public void onCancelled(@androidx.annotation.NonNull com.google.firebase.database.DatabaseError error) {
-
+                public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) {
                     android.util.Log.e("FirebaseError", "Erro ao buscar cômodos: " + error.getMessage());
-
                 }
-
             });
-
         }
-
     }
 
-    // menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_reg_room, menu);
@@ -111,37 +133,28 @@ public class listRoom extends AppCompatActivity {
             Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.comodo) {
-            Intent i = new Intent(listRoom.this, listRoom.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, listRoom.class));
             return true;
         } else if (id == R.id.eletronicos) {
-            Intent i = new Intent(listRoom.this, listAppliance.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, listAppliance.class));
             return true;
         } else if (id == R.id.relatorios) {
-            Intent i = new Intent(listRoom.this, report.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, report.class));
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(listRoom.this, metas.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, metas.class));
             return true;
         } else if (id == R.id.configuracao) {
-            Intent i = new Intent(listRoom.this, settings.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, settings.class));
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(listRoom.this, MainActivity.class);
-            startActivity(i);
+            startActivity(new Intent(listRoom.this, MainActivity.class));
             return true;
-        }  else if (id == R.id.menu_cadastrar) {
-            Intent i = new Intent(listRoom.this, registerRoom.class);
-            startActivity(i);
+        } else if (id == R.id.menu_cadastrar) {
+            startActivity(new Intent(listRoom.this, registerRoom.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
 }
