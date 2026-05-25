@@ -73,7 +73,7 @@ public class registerAppliance extends AppCompatActivity {
         // buscar cômodos no firebase para preencher o SPINNER!
 
         comodoAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nomesComodos);
-        comodoAdapter   .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        comodoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         edtEletroComodoReg.setAdapter(comodoAdapter);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
