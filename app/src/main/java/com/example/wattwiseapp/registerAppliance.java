@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -20,6 +21,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class registerAppliance extends AppCompatActivity {
 
@@ -27,6 +38,10 @@ public class registerAppliance extends AppCompatActivity {
     Spinner edtTipoEletroReg, edtEletroComodoReg;
     Button btnRegisterEletroReg;
     TextView txtDisplayInfoReg;
+
+    private List<String> nomesComodos = new ArrayList<>();
+    private ArrayAdapter<String> comodoAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +70,52 @@ public class registerAppliance extends AppCompatActivity {
             return insets;
         });
 
-        // realizar o cadastro do eletronico
+        // buscar cômodos no firebase para preencher o SPINNER!
+
+        comodoAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nomesComodos);
+        comodoAdapter   .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        edtEletroComodoReg.setAdapter(comodoAdapter);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference comodosRef = FirebaseDatabase.getInstance()
+                    .getReference("Usuarios")
+                    .child(userId)
+                    .child("Comodos");
+
+            comodosRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    nomesComodos.clear();
+                    for (DataSnapshot comodoSnap : snapshot.getChildren()) {
+                        String nomeComodo = comodoSnap.child("nomeComodo").getValue(String.class);
+
+                        if (nomeComodo != null) {
+                            nomesComodos.add(nomeComodo);
+                        }
+                    }
+
+                    //se o usuário ainda não cadastrou nenhum cômodo
+                    if (nomesComodos.isEmpty()) {
+                        nomesComodos.add("Nenhum cômodo cadastrado!");
+                        Toast.makeText(registerAppliance.this, "Atenção: Cadastre um cômodo primeiro!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    comodoAdapter.notifyDataSetChanged();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(registerAppliance.this, "Erro ao carregar cômodos: ", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
+
+        //realizar cadastro do eletrônico
         btnRegisterEletroReg.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -64,8 +124,17 @@ public class registerAppliance extends AppCompatActivity {
                 String strNomeEletro = edtNomeEletroReg.getText().toString();
                 String strPotencia = edtPotenciaReg.getText().toString();
                 String strDescricaoEletro = edtDescricaoEletroReg.getText().toString();
-                String strTipoEletro = edtTipoEletroReg.getSelectedItem().toString();
-                String strEletroComodo = edtEletroComodoReg.getSelectedItem().toString();
+                String strTipoEletro = edtTipoEletroReg.getSelectedItem() != null ? edtTipoEletroReg.getSelectedItem().toString() : "";
+
+                //pegando o cômodo do spinner dinâmico
+                String strEletroComodo = edtEletroComodoReg.getSelectedItem() != null ? edtEletroComodoReg.getSelectedItem().toString() : "";
+
+
+                if(strEletroComodo.equals("Nenhum cômodo cadastrado")) {
+                    txtDisplayInfoReg.setText("Você precisa criar um cômodo antes de adicionar um eletrodoméstico!");
+                    return;
+                }
+
 
                 if(strNomeEletro.isEmpty() || strPotencia.isEmpty() || strDescricaoEletro.isEmpty() || strTipoEletro.isEmpty() || strEletroComodo.isEmpty()){
 
@@ -73,12 +142,10 @@ public class registerAppliance extends AppCompatActivity {
 
                 } else {
 
-                    com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
-
                     if (currentUser != null) {
                         String userId = currentUser.getUid();
 
-                        com.google.firebase.database.DatabaseReference aparelhoRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                        DatabaseReference aparelhoRef = FirebaseDatabase.getInstance()
                                 .getReference("Usuarios")
                                 .child(userId)
                                 .child("Eletronicos")
