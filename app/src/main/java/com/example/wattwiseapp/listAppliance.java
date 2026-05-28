@@ -145,7 +145,8 @@ public class listAppliance extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.sensor) {
-                Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(listAppliance.this, connectSensor.class);
+                startActivity(i);
                 return true;
             } else if (id == R.id.comodo) {
                 Intent i = new Intent(listAppliance.this, listRoom.class);

@@ -293,7 +293,8 @@ public class report extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Toast.makeText(this, "Clicou em Sensor", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(report.this, connectSensor.class);
+            startActivity(i);
             return true;
         } else if (id == R.id.comodo) {
             Intent i = new Intent(report.this, listRoom.class);

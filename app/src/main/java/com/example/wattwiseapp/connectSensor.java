@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -17,17 +15,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-public class settings extends AppCompatActivity {
+public class connectSensor extends AppCompatActivity {
 
-    Button btnLogOut, btnChangePassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_connect_sensor);
 
-        // botao
-        btnLogOut = findViewById(R.id.btnLogOut);
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -36,15 +31,6 @@ public class settings extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-        });
-
-        // btn logout
-        btnLogOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(settings.this, MainActivity.class);
-                startActivity(i);
-            }
         });
     }
 
@@ -60,34 +46,35 @@ public class settings extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(settings.this, connectSensor.class);
+            Intent i = new Intent(connectSensor.this, connectSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {
-            Intent i = new Intent(settings.this, listRoom.class);
+            Intent i = new Intent(connectSensor.this, listRoom.class);
             startActivity(i);
             return true;
         } else if (id == R.id.eletronicos) {
-            Intent i = new Intent(settings.this, listAppliance.class);
+            Intent i = new Intent(connectSensor.this, listAppliance.class);
             startActivity(i);
             return true;
         } else if (id == R.id.relatorios) {
-            Intent i = new Intent(settings.this, report.class);
+            Intent i = new Intent(connectSensor.this, report.class);
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(settings.this, metas.class);
+            Intent i = new Intent(connectSensor.this, metas.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {
-            Intent i = new Intent(settings.this, settings.class);
+            Intent i = new Intent(connectSensor.this, settings.class);
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(settings.this, MainActivity.class);
+            Intent i = new Intent(connectSensor.this, MainActivity.class);
             startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 }
