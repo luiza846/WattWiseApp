@@ -2,6 +2,7 @@ package com.example.wattwiseapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,7 @@ public class register extends AppCompatActivity {
         edtEmailAddressReg = findViewById(R.id.edtEmailAddressReg);
         edtFullNameReg = findViewById(R.id.edtFullNameReg);
         edtPasswordReg = findViewById(R.id.edtPasswordReg);
+        edtConfirmPasswordReg = findViewById(R.id.edtConfirmPasswordReg);
 
         txtDisplayInfoReg = findViewById(R.id.txtDisplayInfoReg);
 
@@ -49,16 +51,27 @@ public class register extends AppCompatActivity {
                 String strFullname = edtFullNameReg.getText().toString();
                 String strEmailAddress = edtEmailAddressReg.getText().toString();
                 String strPassword = edtPasswordReg.getText().toString();
+                String strConfirmPasswordReg = edtConfirmPasswordReg.getText().toString();
 
 
 
-                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty()){
+                if(strFullname.isEmpty() || strEmailAddress.isEmpty() || strPassword.isEmpty() || strConfirmPasswordReg.isEmpty()){
 
                     txtDisplayInfoReg.setText("Preencha todos os campos!");
+                    txtDisplayInfoReg.setTextColor(Color.RED);
+                    return;
 
-                } else {
+                }
 
-                    txtDisplayInfoReg.setText("Registrando no Firebase...");
+                if(!strPassword.equals(strConfirmPasswordReg)){
+                    txtDisplayInfoReg.setText("As senhas estão divergentes!");
+                    txtDisplayInfoReg.setTextColor(Color.RED);
+                    return;
+                }
+                else {
+
+                    txtDisplayInfoReg.setText("Registrando Conta...");
+                    txtDisplayInfoReg.setTextColor(Color.GRAY);
 
 
                     com.google.firebase.auth.FirebaseAuth.getInstance()
@@ -96,9 +109,11 @@ public class register extends AppCompatActivity {
 
                                     // conta foi criada no console do Firebase.
                                     txtDisplayInfoReg.setText("Usuário registrado com sucesso!");
+                                    txtDisplayInfoReg.setTextColor(Color.GRAY);
 
                                 } else {
                                     txtDisplayInfoReg.setText("Erro na conta: " + task.getException().getLocalizedMessage());
+                                    txtDisplayInfoReg.setTextColor(Color.RED);
                                 }
 
                             });
