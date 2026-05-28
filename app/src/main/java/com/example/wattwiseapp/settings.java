@@ -38,13 +38,14 @@ public class settings extends AppCompatActivity {
 
         // botao
         btnLogOut = findViewById(R.id.btnLogOut);
+        btnChangePassword = findViewById(R.id.btnChangePassword);
+        // chamar o metodo
+        carregarDadosUsuario();
 
         // display
         txtDisplayNome = findViewById(R.id.txtDisplayNome);
         txtDisplayEmail = findViewById(R.id.txtDisplayEmail);
 
-        // chamar o metodo
-        carregarDadosUsuario();
 
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -70,7 +71,25 @@ public class settings extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                
+                // 1. Infla o layout XML da tela flutuante
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
+
+                // 2. Cria e configura o AlertDialog passando o tema customizado
+                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(settings.this, R.style.AlertDialogCustom);
+                builder.setView(dialogView);
+
+                // 3. Adiciona os botões de ação na parte inferior do pop-up
+                builder.setPositiveButton("Alterar", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+
+                builder.setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+
+                // 4. Mostra a tela flutuante na tela
+                androidx.appcompat.app.AlertDialog dialog = builder.create();
+                dialog.show();
 
             }
         });
