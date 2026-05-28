@@ -1,6 +1,7 @@
 package com.example.wattwiseapp;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -51,11 +52,13 @@ public class MainActivity extends AppCompatActivity {
 
                 // Coloquei o || para barrar se qualquer um dos campos estiver vazio!
                 if(email.isEmpty() || password.isEmpty()){
-                    txtDisplayInfoLog.setText("Fill all Fields");
+                    txtDisplayInfoLog.setText("Preencha os campos vazios");
+                    txtDisplayInfoLog.setTextColor(Color.RED);
                     return;
                 }
 
                 txtDisplayInfoLog.setText("Autenticando...");
+                txtDisplayInfoLog.setTextColor(Color.GRAY);
 
                 com.google.firebase.auth.FirebaseAuth.getInstance()
                         .signInWithEmailAndPassword(email, password)
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                             if(task.isSuccessful()) {
 
                                 txtDisplayInfoLog.setText("Login sucessfully!");
+                                txtDisplayInfoLog.setTextColor(Color.GRAY);
 
                                 //vai pra tela principal
                                 Intent i = new Intent(MainActivity.this, Dashboard.class);
@@ -70,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
                                 finish();
 
                             } else {
-                                txtDisplayInfoLog.setText("Invalid email or password!");
+                                txtDisplayInfoLog.setText("Email ou senha incorreta!");
+                                txtDisplayInfoLog.setTextColor(Color.RED);
                             }
                         });
             }
