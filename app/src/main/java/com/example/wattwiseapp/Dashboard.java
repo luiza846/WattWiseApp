@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,14 +30,20 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Dashboard extends AppCompatActivity {
 
     //grafico
     private LineChart lineChart;
     private PieChart pieChartConsumo;
-    //botoes
-    Button btnRegisterRoom, btnRegisterAppliance;
+    TextView displayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +54,9 @@ public class Dashboard extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        carregarDadosUsuario();
+        displayName = findViewById(R.id.displayName);
+
         //grafico
         lineChart = findViewById(R.id.energyChart);
         configurarGrafico();
@@ -54,28 +64,6 @@ public class Dashboard extends AppCompatActivity {
         // griafico (pie)
         pieChartConsumo = findViewById(R.id.pieChartConsumo);
         configurarGraficoRosca();
-
-        //botoes
-//        btnRegisterRoom = findViewById(R.id.btnRegisterRoom);
-//        btnRegisterAppliance = findViewById(R.id.btnRegisterAppliance);
-//
-//        btnRegisterRoom.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent i = new Intent(Dashboard.this, registerRoom.class);
-//                startActivity(i);
-//            }
-//        });
-//
-//        btnRegisterAppliance.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent i = new Intent(Dashboard.this, registerAppliance.class);
-//                startActivity(i);
-//            }
-//        });
-
-
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -130,32 +118,69 @@ public class Dashboard extends AppCompatActivity {
 
     // grafico
     private void configurarGrafico() {
-        // 1. Criar os dados (Exemplo: Consumo em 5 dias)
         List<Entry> entradas = new ArrayList<>();
-        entradas.add(new Entry(1, 10f)); // Dia 1, 10kWh
-        entradas.add(new Entry(2, 15f)); // Dia 2, 15kWh
-        entradas.add(new Entry(3, 12f));
-        entradas.add(new Entry(4, 20f));
-        entradas.add(new Entry(5, 18f));
+        entradas.add(new Entry(0, 0.5f));
+        entradas.add(new Entry(6, 1.2f));
+        entradas.add(new Entry(12, 3.5f));
+        entradas.add(new Entry(18, 4.2f));
+        entradas.add(new Entry(22, 2.0f));
 
-        // 2. Configurar o conjunto de dados (A linha em si)
-        LineDataSet dataSet = new LineDataSet(entradas, "Consumo (kWh)");
-        dataSet.setColor(Color.BLUE);
-        dataSet.setCircleColor(Color.DKGRAY);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(true); // Mostra o valor em cima do ponto
+        LineDataSet dataSet = new LineDataSet(entradas, "Consumo de Energia");
+        dataSet.setColor(Color.parseColor("#3498DB"));
+        dataSet.setCircleColor(Color.parseColor("#2C3E50"));
+        dataSet.setLineWidth(2.5f);
+        dataSet.setCircleRadius(5f);
 
-        // 3. Aplicar os dados ao gráfico
+        dataSet.setDrawValues(true);
+        dataSet.setValueTextSize(10f);
+        dataSet.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
+            // formatar o valor pra kwh
+            @Override
+            public String getFormattedValue(float value) {
+                return value + " kWh";
+            }
+        });
+
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
 
-        // 4. Customizações Visuais
-        lineChart.getDescription().setText("Monitoramento Diário");
-        lineChart.animateX(1000); // Animação de entrada
-        lineChart.invalidate(); // Atualiza o gráfico
-    }
+        // horas
+        com.github.mikephil.charting.components.XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM);
+        xAxis.setAxisMinimum(0f);
+        xAxis.setAxisMaximum(24f);
+        xAxis.setGranularity(2f); // Mostra de 2 em 2 horas (ex: 0h, 2h, 4h...) para não embolar
+        xAxis.setDrawGridLines(true);
 
+        // formatar o valor pra hrs
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return ((int) value) + "h";
+            }
+        });
+
+        // kwh
+        com.github.mikephil.charting.components.YAxis yAxisLeft = lineChart.getAxisLeft();
+        yAxisLeft.setAxisMinimum(0f);
+
+        // formatar o valor pra kwh
+        yAxisLeft.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return value + " kWh";
+            }
+        });
+
+
+        lineChart.getAxisRight().setEnabled(false);
+
+        
+        lineChart.getDescription().setEnabled(false);
+
+        lineChart.animateX(1200);
+        lineChart.invalidate();
+    }
     private void configurarGraficoRosca() {
         // 1. Ativa o "buraco" no meio para virar um gráfico Doughnut
         pieChartConsumo.setDrawHoleEnabled(true);
@@ -197,4 +222,45 @@ public class Dashboard extends AppCompatActivity {
         pieChartConsumo.getLegend().setEnabled(true); // Ativa a legenda dos cômodos
         pieChartConsumo.animateY(1400); // Animação de entrada bem fluida
     }
-}
+
+
+    // carregar o nome do usuário
+    private void carregarDadosUsuario() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Usuarios")
+                .child(userId);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                String nome = snapshot.child("fullname").getValue(String.class);
+
+                if (nome != null) {
+                    displayName.setText("Olá, " + nome + "!");
+                } else {
+                    displayName.setText("Olá!");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(Dashboard.this,
+                        "Erro ao carregar dados: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    }

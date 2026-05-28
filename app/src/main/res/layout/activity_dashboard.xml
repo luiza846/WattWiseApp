@@ -42,7 +42,7 @@
         <!--grafico-->
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/energyChart"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="300dp"
             android:layout_marginTop="77dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -50,11 +50,11 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/displayName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="250dp"
-            android:text="Olá, Fulano!"
+            android:text=""
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/textView5"
             app:layout_constraintEnd_toEndOf="parent"
