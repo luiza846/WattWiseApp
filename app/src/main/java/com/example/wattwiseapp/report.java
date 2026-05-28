@@ -27,13 +27,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.*;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class report extends AppCompatActivity {
 
@@ -43,6 +52,8 @@ public class report extends AppCompatActivity {
     Spinner edtPeriodo;
 
     Button btnRelatorio;
+
+    private List<String[]> dadosReais = new ArrayList<>(); // lista global para guardar os dados reais do firebase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,23 +74,58 @@ public class report extends AppCompatActivity {
         //tabela
         tableLayout = findViewById(R.id.tableAppliance);
 
-        // inserir dados ficiticios (provisorio
-        List<String[]> dadosFicticios = new ArrayList<>();
 
-        dadosFicticios.add(new String[]{"Quarto", "Ar Condicionado", "120 kWh"});
-        dadosFicticios.add(new String[]{"Cozinha", "Geladeira", "60 kWh"});
-        dadosFicticios.add(new String[]{"Banheiro", "Chuveiro", "180 kWh"});
-        dadosFicticios.add(new String[]{"Sala", "Televisão", "15 kWh"});
-        dadosFicticios.add(new String[]{"Lavanderia", "Máquina de Lavar", "45 kWh"});
+        // inserir dados reais do usuário puxando do firebase
 
-        // chamar a funcao
-        inserirDadosTabela(dadosFicticios);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        if (currentUser != null) {
+
+            String userId = currentUser.getUid();
+            DatabaseReference eletrosRef = FirebaseDatabase.getInstance()
+                    .getReference("Usuarios")
+                    .child(userId)
+                    .child("Eletronicos");
+
+            eletrosRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    dadosReais.clear(); //limpa lista antiga
+                    tableLayout.removeAllViews(); //limpa linhas visuais da tela
+
+                    for (DataSnapshot eletroSnap : snapshot.getChildren()) {
+                        String comodo = eletroSnap.child("comodoEletro").getValue(String.class);
+                        String nome = eletroSnap.child("nomeEletro").getValue(String.class);
+
+                        if (comodo == null) comodo = "Não definido";
+                        if (nome == null) nome = "Aparelho";
+
+                        String consumoTexto = "-"; //se tiver sem o sensor conectado aparece só um tracinho
+
+                        if (eletroSnap.hasChild("dados")) {
+                            Double corrente = eletroSnap.child("dados").child("energia").getValue(Double.class);
+
+                            if (corrente != null) {
+                                consumoTexto = String.format(Locale.getDefault(), "%.2f kWh", corrente);
+                            }
+                        }
+
+                        dadosReais.add(new String[]{comodo, nome, consumoTexto});
+
+                    }
+
+                        inserirDadosTabela(dadosReais);
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(report.this, "Erro no banco: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
 
         btnRelatorio.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,25 +220,18 @@ public class report extends AppCompatActivity {
         // ---------------------------------------------------------
         // 3. POPULAR OS DADOS DA TABELA (Dinâmico)
         // ---------------------------------------------------------
-        // Recuperando a mesma lista fictícia que você usou na tela
-        List<String[]> dadosFicticios = new ArrayList<>();
-        dadosFicticios.add(new String[]{"Quarto", "Ar Condicionado", "120 kWh"});
-        dadosFicticios.add(new String[]{"Cozinha", "Geladeira", "60 kWh"});
-        dadosFicticios.add(new String[]{"Banheiro", "Chuveiro", "180 kWh"});
-        dadosFicticios.add(new String[]{"Sala", "Televisão", "15 kWh"});
-        dadosFicticios.add(new String[]{"Lavanderia", "Máquina de Lavar", "45 kWh"});
 
         // Mudar estilo para o corpo da tabela
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
         paint.setTextSize(12);
 
-        for (int i = 0; i < dadosFicticios.size(); i++) {
-            String[] item = dadosFicticios.get(i);
+        for (int i = 0; i < dadosReais.size(); i++) {
+            String[] item = dadosReais.get(i);
 
             // Avança o Y para a próxima linha
             linhaY += alturaLinha;
 
-            // Estilização zebrada opcional (muda a cor do texto para diferenciar as linhas)
+            // Estilização zebrada opcional
             if (i % 2 == 0) {
                 paint.setColor(Color.BLACK);
             } else {
