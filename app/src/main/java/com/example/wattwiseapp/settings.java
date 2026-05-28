@@ -70,7 +70,6 @@ public class settings extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                
 
             }
         });
