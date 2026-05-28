@@ -9,42 +9,64 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/imgBackground"
+        android:layout_width="607dp"
+        android:layout_height="0dp" android:scaleType="fitXY"
+        android:src="@drawable/wave"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.863"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+
+        app:layout_constraintHeight_percent="0.55" />
+
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="370dp"
+        android:layout_height="224dp"
+        android:src="@drawable/logodois"
+        app:layout_constraintBottom_toTopOf="@+id/edtEmailAddressLog"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/imgBackground"
+        app:layout_constraintVertical_bias="0.156" />
+
+    <Button
+        android:id="@+id/btnRegisterLog"
+        android:layout_width="262dp"
+        android:layout_height="53dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#FFFFFF"
+        android:text="CRIAR CONTA"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/btnLoginLog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:backgroundTint="#2F3B75"
+        android:layout_width="262dp"
+        android:layout_height="53dp"
+        android:layout_marginBottom="80dp"
+        android:backgroundTint="#2b3d4f"
         android:text="ENTRAR"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/btnRegisterLog"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/edtEmailAddressLog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:ems="10"
-        android:hint="Email"
-        android:inputType="text"
-        android:textColor="#000000"
-        android:textColorHint="#686565"
-        android:textColorLink="#2F3B75"
-        app:layout_constraintBottom_toTopOf="@+id/edtPasswordLog"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.76" />
-
-    <EditText
         android:id="@+id/edtPasswordLog"
-        android:layout_width="wrap_content"
+        android:layout_width="262dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="68dp"
+        android:layout_marginBottom="40dp"
         android:ems="10"
         android:hint="Senha"
         android:inputType="textPassword"
@@ -53,20 +75,25 @@
         android:textColorLink="#2F3B75"
         app:layout_constraintBottom_toTopOf="@+id/btnLoginLog"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/btnRegisterLog"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/edtEmailAddressLog"
+        android:layout_width="262dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="168dp"
-        android:backgroundTint="#2F3B75"
-        android:text="CRIAR CONTA"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#686565"
+        android:textColorLink="#2F3B75"
+        app:layout_constraintBottom_toTopOf="@+id/edtPasswordLog"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.88" />
 
     <TextView
         android:id="@+id/txtDisplayInfoLog"
@@ -74,4 +101,36 @@
         android:layout_height="wrap_content"
         tools:layout_editor_absoluteX="178dp"
         tools:layout_editor_absoluteY="55dp" />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OU"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegisterLog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLoginLog" />
+
+    <View
+        android:layout_width="110dp"
+        android:layout_height="2dp"
+        android:background="#CFCFD1"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegisterLog"
+        app:layout_constraintEnd_toStartOf="@+id/textView11"
+        app:layout_constraintHorizontal_bias="0.86"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLoginLog" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="110dp"
+        android:layout_height="2dp"
+        android:background="#CFCFD1"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegisterLog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.127"
+        app:layout_constraintStart_toEndOf="@+id/textView11"
+        app:layout_constraintTop_toBottomOf="@+id/btnLoginLog" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
