@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,10 +17,19 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class settings extends AppCompatActivity {
 
     Button btnLogOut, btnChangePassword;
+    TextView txtDisplayNome, txtDisplayEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +38,14 @@ public class settings extends AppCompatActivity {
 
         // botao
         btnLogOut = findViewById(R.id.btnLogOut);
+
+        // display
+        txtDisplayNome = findViewById(R.id.txtDisplayNome);
+        txtDisplayEmail = findViewById(R.id.txtDisplayEmail);
+
+        // chamar o metodo
+        carregarDadosUsuario();
+
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -46,6 +64,17 @@ public class settings extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        // btn trocar senha
+        btnChangePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                
+
+            }
+        });
+
     }
 
     // menu
@@ -90,4 +119,41 @@ public class settings extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void carregarDadosUsuario() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Usuarios")
+                .child(userId);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                String nome = snapshot.child("fullname").getValue(String.class);
+                String email = user.getEmail();
+
+                txtDisplayNome.setText(nome != null ? nome : "Nome não informado");
+                txtDisplayEmail.setText(email != null ? email : "Email não informado");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(settings.this,
+                        "Erro ao carregar dados: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
