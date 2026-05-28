@@ -8,14 +8,12 @@
     android:background="#FFFFFF"
     tools:context=".connectSensor">
 
-
-    <!-- Toolbar igual ao cadastro -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#2F3B75"
-        android:title="Editar Eletrodoméstico"
+        android:title="Conectar Sensor"
         android:titleTextColor="@android:color/white"
         app:popupTheme="@style/MenuBranco"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,40 +26,44 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:text="CONECTAR SENSOR"
-        app:layout_constraintBottom_toTopOf="@+id/edtNomeSensor"
+        android:textColor="#000000"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <EditText
-        android:id="@+id/edtNomeSensor"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/spinnerSensores"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
-        android:ems="10"
-        android:hint="Identificação do sensor"
-        android:inputType="text"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#2F3B75"
         android:textColor="#000000"
-        android:textColorHint="#686565"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <Spinner
+        android:id="@+id/spinnerEletros"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#2F3B75"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSensores" />
 
     <Button
         android:id="@+id/btnConnectSensor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:backgroundTint="#2F3B75"
         android:text="Conectar"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtNomeSensor"
-        app:layout_constraintVertical_bias="0.106"
-        tools:ignore="DuplicateSpeakableTextCheck" />
-
+        app:layout_constraintTop_toBottomOf="@+id/spinnerEletros" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
