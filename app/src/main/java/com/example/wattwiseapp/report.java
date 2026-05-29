@@ -41,8 +41,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class report extends AppCompatActivity {
 
@@ -82,39 +84,63 @@ public class report extends AppCompatActivity {
         if (currentUser != null) {
 
             String userId = currentUser.getUid();
-            DatabaseReference eletrosRef = FirebaseDatabase.getInstance()
-                    .getReference("Usuarios")
-                    .child(userId)
-                    .child("Eletronicos");
 
-            eletrosRef.addValueEventListener(new ValueEventListener() {
+            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+
+            rootRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     dadosReais.clear(); //limpa lista antiga
                     tableLayout.removeAllViews(); //limpa linhas visuais da tela
 
-                    for (DataSnapshot eletroSnap : snapshot.getChildren()) {
+                    DataSnapshot userSnap = snapshot.child("Usuarios").child(userId);
+                    DataSnapshot sensoresGlobaisSnap = snapshot.child("dados");
+
+                    Map<String, String> eletroParaSensor = new HashMap<>();
+                    DataSnapshot userDadosSnap = userSnap.child("dados");
+
+                    for (DataSnapshot meuSensorSnap : userDadosSnap.getChildren()) {
+                        String nomeDoSensor = meuSensorSnap.getKey();
+                        String idEletroAtivo = meuSensorSnap.child("idEletroAtivo").getValue(String.class);
+
+                        if (idEletroAtivo != null && !idEletroAtivo.isEmpty()) {
+                            eletroParaSensor.put(idEletroAtivo, nomeDoSensor);
+                        }
+                    }
+
+
+                    DataSnapshot eletronicosSnap = userSnap.child("Eletronicos");
+
+                    for (DataSnapshot eletroSnap : eletronicosSnap.getChildren()) {
+                        String idDoAparelho = eletroSnap.getKey();
                         String comodo = eletroSnap.child("comodoEletro").getValue(String.class);
                         String nome = eletroSnap.child("nomeEletro").getValue(String.class);
 
                         if (comodo == null) comodo = "Não definido";
                         if (nome == null) nome = "Aparelho";
 
-                        String consumoTexto = "-"; //se tiver sem o sensor conectado aparece só um tracinho
+                        String consumoTexto = "-";
 
-                        if (eletroSnap.hasChild("dados")) {
-                            Double corrente = eletroSnap.child("dados").child("energia").getValue(Double.class);
+                        if (idDoAparelho != null && eletroParaSensor.containsKey(idDoAparelho)) {
 
-                            if (corrente != null) {
-                                consumoTexto = String.format(Locale.getDefault(), "%.2f kWh", corrente);
+                            String nomeSensorAtrelado = eletroParaSensor.get(idDoAparelho);
+
+                            Double energiaReal = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue(Double.class);
+
+
+                            if (energiaReal != null) {
+                                consumoTexto = String.format(Locale.getDefault(), "%.2f kWh", energiaReal);
+                            } else {
+                                consumoTexto = "Agurdando dados..."; // Sensor conectado, mas ESP32 ainda não enviou energia
                             }
+
                         }
 
                         dadosReais.add(new String[]{comodo, nome, consumoTexto});
 
                     }
 
-                        inserirDadosTabela(dadosReais);
+                    inserirDadosTabela(dadosReais);
 
                 }
 

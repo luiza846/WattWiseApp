@@ -121,7 +121,7 @@ public class connectSensor extends AppCompatActivity {
 
         // Consulta no banco global de Sensores para ver se ele existe
         DatabaseReference sensorGlobalRef = FirebaseDatabase.getInstance()
-                .getReference("Sensores")
+                .getReference("dados")
                 .child(idSensorDigitado);
 
         sensorGlobalRef.addListenerForSingleValueEvent(new ValueEventListener() {
