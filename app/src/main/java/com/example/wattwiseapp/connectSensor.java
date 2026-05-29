@@ -6,16 +6,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,55 +27,37 @@ import java.util.List;
 
 public class connectSensor extends AppCompatActivity {
 
-    private Spinner spinnerSensores;
+    private EditText edtNomeSensor;
     private Spinner spinnerEletros;
     private Button btnConnectSensor;
 
-    //lista para preencher os Spinners
-    private List<String> listaSensores = new ArrayList<>();
+    // Listas para preencher o Spinner de Aparelhos
     private List<String> nomesEletros = new ArrayList<>();
-
-    private List<String> idsEletros = new ArrayList<>(); //lista paralela para guardar os IDs reais dos Eletros.
-
+    private List<String> idsEletros = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_connect_sensor);
 
-        // menu
+        // Configura Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        spinnerSensores = findViewById(R.id.spinnerSensores);
+        // Vincula os itens da tela
+        edtNomeSensor = findViewById(R.id.edtNomeSensor);
         spinnerEletros = findViewById(R.id.spinnerEletros);
         btnConnectSensor = findViewById(R.id.btnConnectSensor);
 
-        //preenche os spinner de sensores (manual/estático por enquanto) TODO AJUSTAR DEPOIS COM O FERNANDO
-        listaSensores.add("sensor_01"); //TODO: TEM QUE SER O ID EXATO QUE O FERNANDO VAI USAR NO BANCO
-        ArrayAdapter<String> adapterSensores = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, listaSensores);
-        adapterSensores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSensores.setAdapter(adapterSensores);
-
-        //preenche o spinner de eletrodomésticos puxando do firebase
+        // Preenche o spinner de eletrodomésticos
         carregarEletrodomesticos();
 
-        //ação do botão conectar
+        // Ação do Botão Conectar
         btnConnectSensor.setOnClickListener(view -> conectarEletroAoSensor());
-
-
-        /*ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });*/
-
     }
 
     private void carregarEletrodomesticos() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         if (currentUser == null) return;
 
         String userId = currentUser.getUid();
@@ -88,11 +66,9 @@ public class connectSensor extends AppCompatActivity {
                 .child(userId)
                 .child("Eletronicos");
 
-        //adapter para os eletrodomesticos
         ArrayAdapter<String> adapterEletros = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nomesEletros);
         adapterEletros.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerEletros.setAdapter(adapterEletros);
-
 
         eletrosRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -106,7 +82,7 @@ public class connectSensor extends AppCompatActivity {
 
                     if (nome != null && id != null) {
                         nomesEletros.add(nome);
-                        idsEletros.add(id); //guarda o ID verdadeiro de maneira oculta
+                        idsEletros.add(id);
                     }
                 }
 
@@ -122,49 +98,62 @@ public class connectSensor extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(connectSensor.this, "Erro ao carregar aparelhos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(connectSensor.this, "Erro ao carregar aparelhos", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void conectarEletroAoSensor() {
-        //valida se o usuario escolheu algo
-        if (spinnerSensores.getSelectedItem() == null || spinnerEletros.getSelectedItem() == null) {
-            Toast.makeText(this, "Selecione um sensor e um aparelho!", Toast.LENGTH_SHORT).show();
+        String idSensorDigitado = edtNomeSensor.getText().toString().trim();
+
+        // Valida se o usuário escreveu e escolheu algo
+        if (idSensorDigitado.isEmpty() || spinnerEletros.getSelectedItem() == null) {
+            Toast.makeText(this, "Preencha a licença e selecione um aparelho!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String idSensorEscolhido = spinnerSensores.getSelectedItem().toString();
-
-        //pega a posição que o usuário clicou no spinner e usa ela para puxar o ID real da lista
 
         int posicaoEletro = spinnerEletros.getSelectedItemPosition();
         String idEletroEscolhido = idsEletros.get(posicaoEletro);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+        String userId = currentUser.getUid();
 
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
+        // Consulta no banco global de Sensores para ver se ele existe
+        DatabaseReference sensorGlobalRef = FirebaseDatabase.getInstance()
+                .getReference("Sensores")
+                .child(idSensorDigitado);
 
-            //grava o ID do aparelho dentro da pasta do sensor no firebase
-            DatabaseReference sensorRef = FirebaseDatabase.getInstance()
-                    .getReference("Usuarios")
-                    .child(userId)
-                    .child("dados")
-                    .child(idSensorEscolhido);
+        sensorGlobalRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
 
-            sensorRef.child("idEletroAtivo").setValue(idEletroEscolhido).addOnSuccessListener(unused -> {
-                Toast.makeText(this, "Sensor conectado com sucesso!", Toast.LENGTH_SHORT).show();
+                    DatabaseReference userSensorRef = FirebaseDatabase.getInstance()
+                            .getReference("Usuarios")
+                            .child(userId)
+                            .child("dados")
+                            .child(idSensorDigitado);
 
-                finish(); // volta pra tela anterior
+                    userSensorRef.child("idEletroAtivo").setValue(idEletroEscolhido)
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(connectSensor.this, "Sensor conectado com sucesso!", Toast.LENGTH_LONG).show();
+                                finish(); // volta pra tela anterior
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(connectSensor.this, "Erro ao registrar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    // ERRO: SENSOR NÃO EXISTE NO BANCO
+                    Toast.makeText(connectSensor.this, "Sensor não encontrado! Verifique a chave.", Toast.LENGTH_LONG).show();
+                }
+            }
 
-            })
-                    .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Erro ao conectar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
-
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(connectSensor.this, "Erro de conexão.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // menu
@@ -209,5 +198,4 @@ public class connectSensor extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }
