@@ -75,17 +75,11 @@ public class Dashboard extends AppCompatActivity {
 
     // menu
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_principal, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(Dashboard.this, connectSensor.class);
+            Intent i = new Intent(Dashboard.this, listSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {
@@ -114,6 +108,12 @@ public class Dashboard extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_principal, menu);
+        return true;
     }
 
     // grafico
@@ -175,7 +175,7 @@ public class Dashboard extends AppCompatActivity {
 
         lineChart.getAxisRight().setEnabled(false);
 
-        
+
         lineChart.getDescription().setEnabled(false);
 
         lineChart.animateX(1200);
@@ -184,12 +184,11 @@ public class Dashboard extends AppCompatActivity {
     private void configurarGraficoRosca() {
         // 1. Ativa o "buraco" no meio para virar um gráfico Doughnut
         pieChartConsumo.setDrawHoleEnabled(true);
-        pieChartConsumo.setHoleRadius(60f); // Tamanho da rosca (em %)
-        pieChartConsumo.setTransparentCircleRadius(65f); // Efeito de sombra interna
+        pieChartConsumo.setHoleRadius(50f); // Tamanho da rosca (em %)
 
         // 2. Adiciona o texto centralizado (Foco em Conscientização: Gasto Total)
         pieChartConsumo.setCenterText("Total de Hoje\nR$ 18,50");
-        pieChartConsumo.setCenterTextSizePixels(18f);
+        pieChartConsumo.setCenterTextSizePixels(35f);
         pieChartConsumo.setCenterTextColor(Color.DKGRAY);
 
         // 3. Criando a lista de dados (Entries)
@@ -197,6 +196,7 @@ public class Dashboard extends AppCompatActivity {
         entradas.add(new PieEntry(40f, "Cozinha"));
         entradas.add(new PieEntry(35f, "Quarto"));
         entradas.add(new PieEntry(25f, "Banheiro"));
+
 
         // 4. Configurando o DataSet (Visual das fatias)
         PieDataSet dataSet = new PieDataSet(entradas, "Consumo por Cômodo");

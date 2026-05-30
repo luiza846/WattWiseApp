@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_cadastrar"
+        android:title="Conectar Sensor"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_principal"
+        app:showAsAction="always"
+        android:title=""
+        android:icon="@drawable/baseline_menu_24">
+
+        <menu>
+
+            <item
+                android:id="@+id/sensor"
+                android:title="Conectar Sensor"
+                app:showAsAction="never"
+                android:icon="@drawable/baseline_bluetooth_24"/>
+
+            <item
+                android:id="@+id/comodo"
+                android:title="Cômodos"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_home_24"/>
+
+            <item
+                android:id="@+id/eletronicos"
+                android:title="Eletrônicos"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_electrical_services_24"/>
+
+            <item
+                android:id="@+id/relatorios"
+                android:title="Relatórios"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_bar_chart_24"/>
+
+            <item
+                android:id="@+id/metas"
+                android:title="Metas"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_target_24"/>
+
+            <item
+                android:id="@+id/configuracao"
+                android:title="Configurações"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_settings_24"/>
+
+            <item
+                android:id="@+id/logout"
+                android:title="Sair"
+                app:showAsAction="never"
+                android:icon="@drawable/baseline_logout_24"/>
+
+        </menu>
+
+    </item>
+
+
+</menu>
