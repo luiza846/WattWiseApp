@@ -2,6 +2,7 @@ package com.example.wattwiseapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
@@ -30,6 +31,12 @@ public class listSensor extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_sensor, menu);
+        return true;
     }
 
     // menu
@@ -63,6 +70,9 @@ public class listSensor extends AppCompatActivity {
             return true;
         } else if (id == R.id.logout) {
             Intent i = new Intent(listSensor.this, MainActivity.class);
+            startActivity(i);
+        } else if (id == R.id.menu_conectar) {
+            Intent i = new Intent(listSensor.this, connectSensor.class);
             startActivity(i);
         }
 
