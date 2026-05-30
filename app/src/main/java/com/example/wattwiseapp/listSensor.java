@@ -121,8 +121,17 @@ public class listSensor extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(listSensor.this, MainActivity.class);
-            startActivity(i);
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(listSensor.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
         } else if (id == R.id.menu_conectar) {
             Intent i = new Intent(listSensor.this, connectSensor.class);
             startActivity(i);

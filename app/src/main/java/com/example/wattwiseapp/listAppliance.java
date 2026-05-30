@@ -173,9 +173,17 @@ public class listAppliance extends AppCompatActivity {
                 startActivity(i);
                 return true;
             } else if (id == R.id.logout) {
-                Intent i = new Intent(listAppliance.this, MainActivity.class);
-                startActivity(i);
-                return true;
+                FirebaseAuth.getInstance().signOut();
+
+                Intent intent = new Intent(listAppliance.this, MainActivity.class);
+
+                intent.setFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK |
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                );
+
+                startActivity(intent);
+                finish();
             } else if (id == R.id.menu_cadastrar) {
                 Intent i = new Intent(listAppliance.this, registerAppliance.class);
                 startActivity(i);

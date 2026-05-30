@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class listRoom extends AppCompatActivity {
 
@@ -152,8 +153,17 @@ public class listRoom extends AppCompatActivity {
             startActivity(new Intent(listRoom.this, settings.class));
             return true;
         } else if (id == R.id.logout) {
-            startActivity(new Intent(listRoom.this, MainActivity.class));
-            return true;
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(listRoom.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
         } else if (id == R.id.menu_cadastrar) {
             startActivity(new Intent(listRoom.this, registerRoom.class));
             return true;

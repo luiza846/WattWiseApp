@@ -196,8 +196,17 @@ public class connectSensor extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(connectSensor.this, MainActivity.class);
-            startActivity(i);
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(connectSensor.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

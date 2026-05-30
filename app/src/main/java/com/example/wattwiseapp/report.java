@@ -346,9 +346,17 @@ public class report extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(report.this, MainActivity.class);
-            startActivity(i);
-            return true;
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(report.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

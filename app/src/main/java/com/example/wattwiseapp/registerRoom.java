@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class registerRoom extends AppCompatActivity {
 
@@ -157,8 +158,17 @@ public class registerRoom extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.logout) {
-            Intent i = new Intent(registerRoom.this, MainActivity.class);
-            startActivity(i);
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(registerRoom.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
