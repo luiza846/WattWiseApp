@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WattWiseApp">
         <activity
+            android:name=".listSensor"
+            android:exported="false" />
+        <activity
             android:name=".connectSensor"
             android:exported="false" />
         <activity
