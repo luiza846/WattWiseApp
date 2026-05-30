@@ -72,6 +72,9 @@ public class report extends AppCompatActivity {
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         //tabela
         tableLayout = findViewById(R.id.tableAppliance);

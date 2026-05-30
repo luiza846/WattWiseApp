@@ -44,6 +44,10 @@ public class connectSensor extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
         // Vincula os itens da tela
         edtNomeSensor = findViewById(R.id.edtNomeSensor);
         spinnerEletros = findViewById(R.id.spinnerEletros);

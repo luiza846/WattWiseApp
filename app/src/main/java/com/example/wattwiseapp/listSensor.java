@@ -2,8 +2,10 @@ package com.example.wattwiseapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -11,10 +13,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class listSensor extends AppCompatActivity {
+
+    private RecyclerView recyclerView;
+    private SensorAdapter adapter;
+    private List<Sensor> listaSensores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,15 +40,49 @@ public class listSensor extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_sensor);
 
-        // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        listaSensores = new ArrayList<>();
+        recyclerView = findViewById(R.id.listaSensores);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new SensorAdapter(this, listaSensores);
+        recyclerView.setAdapter(adapter);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+
+            DatabaseReference sensoresRef = FirebaseDatabase.getInstance()
+                    .getReference("Usuarios")
+                    .child(userId)
+                    .child("dados");
+
+            sensoresRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    listaSensores.clear();
+
+                    for (DataSnapshot sensorSnapshot : snapshot.getChildren()) {
+                        Sensor sensor = sensorSnapshot.getValue(Sensor.class);
+                        if (sensor != null) {
+                            sensor.setIdSensor(sensorSnapshot.getKey());
+                            listaSensores.add(sensor);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("FirebaseError", error.getMessage());
+                }
+            });
+        }
     }
 
     @Override

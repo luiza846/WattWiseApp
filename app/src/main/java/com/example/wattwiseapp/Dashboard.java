@@ -54,6 +54,11 @@ public class Dashboard extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Garante que o título do app fique em branco na Action Bar de suporte
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
         carregarDadosUsuario();
         displayName = findViewById(R.id.displayName);
 
