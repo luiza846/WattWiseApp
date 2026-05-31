@@ -338,7 +338,7 @@ public class report extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(report.this, metas.class);
+            Intent i = new Intent(report.this, Dashboard.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {

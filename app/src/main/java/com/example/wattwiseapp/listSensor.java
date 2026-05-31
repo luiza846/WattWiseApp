@@ -113,7 +113,7 @@ public class listSensor extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(listSensor.this, metas.class);
+            Intent i = new Intent(listSensor.this, Dashboard.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {

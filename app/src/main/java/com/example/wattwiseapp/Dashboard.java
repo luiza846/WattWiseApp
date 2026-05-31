@@ -100,7 +100,7 @@ public class Dashboard extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(Dashboard.this, metas.class);
+            Intent i = new Intent(Dashboard.this, Dashboard.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {

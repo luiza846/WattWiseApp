@@ -17,6 +17,12 @@
         <menu>
 
             <item
+                android:id="@+id/metas"
+                android:title="Dashboard"
+                app:showAsAction="never"
+                android:icon="@drawable/outline_space_dashboard_24"/>
+
+            <item
                 android:id="@+id/sensor"
                 android:title="Conectar Sensor"
                 app:showAsAction="never"
@@ -39,12 +45,6 @@
                 android:title="Relatórios"
                 app:showAsAction="never"
                 android:icon="@drawable/outline_bar_chart_24"/>
-
-            <item
-                android:id="@+id/metas"
-                android:title="Metas"
-                app:showAsAction="never"
-                android:icon="@drawable/outline_target_24"/>
 
             <item
                 android:id="@+id/configuracao"

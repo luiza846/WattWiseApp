@@ -147,7 +147,7 @@ public class listRoom extends AppCompatActivity {
             startActivity(new Intent(listRoom.this, report.class));
             return true;
         } else if (id == R.id.metas) {
-            startActivity(new Intent(listRoom.this, metas.class));
+            startActivity(new Intent(listRoom.this, Dashboard.class));
             return true;
         } else if (id == R.id.configuracao) {
             startActivity(new Intent(listRoom.this, settings.class));

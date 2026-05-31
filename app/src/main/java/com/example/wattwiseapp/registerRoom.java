@@ -150,7 +150,7 @@ public class registerRoom extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(registerRoom.this, metas.class);
+            Intent i = new Intent(registerRoom.this, Dashboard.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {

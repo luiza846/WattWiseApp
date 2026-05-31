@@ -188,7 +188,7 @@ public class connectSensor extends AppCompatActivity {
             startActivity(i);
             return true;
         } else if (id == R.id.metas) {
-            Intent i = new Intent(connectSensor.this, metas.class);
+            Intent i = new Intent(connectSensor.this, Dashboard.class);
             startActivity(i);
             return true;
         } else if (id == R.id.configuracao) {

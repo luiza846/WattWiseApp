@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     tools:context=".register">
 
     <TextView
@@ -78,9 +77,9 @@
 
     <Button
         android:id="@+id/btnRegisterReg"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="#2F3B75"
+        android:backgroundTint="#2B3D4F"
         android:text="Registrar"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"

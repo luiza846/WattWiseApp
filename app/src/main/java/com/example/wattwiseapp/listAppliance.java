@@ -165,7 +165,7 @@ public class listAppliance extends AppCompatActivity {
                 startActivity(i);
                 return true;
             } else if (id == R.id.metas) {
-                Intent i = new Intent(listAppliance.this, metas.class);
+                Intent i = new Intent(listAppliance.this, Dashboard.class);
                 startActivity(i);
                 return true;
             } else if (id == R.id.configuracao) {
