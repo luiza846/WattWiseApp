@@ -130,11 +130,12 @@ public class report extends AppCompatActivity {
 
 
                             Object energiaObj = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue();
+                            String energiaLimpa = String.valueOf(energiaObj).replaceAll("[^\\d.]", "");
                             Double energiaReal = null;
 
                             if (energiaObj != null) {
                                 try {
-                                    energiaReal = Double.parseDouble(String.valueOf(energiaObj));
+                                    energiaReal = Double.parseDouble(energiaLimpa);
                                 } catch (NumberFormatException e) {
                                     energiaReal = null;
                                 }
