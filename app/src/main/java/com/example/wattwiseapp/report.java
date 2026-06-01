@@ -128,7 +128,17 @@ public class report extends AppCompatActivity {
 
                             String nomeSensorAtrelado = eletroParaSensor.get(idDoAparelho);
 
-                            Double energiaReal = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue(Double.class);
+
+                            Object energiaObj = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue();
+                            Double energiaReal = null;
+
+                            if (energiaObj != null) {
+                                try {
+                                    energiaReal = Double.parseDouble(String.valueOf(energiaObj));
+                                } catch (NumberFormatException e) {
+                                    energiaReal = null;
+                                }
+                            }
 
 
                             if (energiaReal != null) {
