@@ -23,7 +23,10 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -197,7 +200,6 @@ public class Dashboard extends AppCompatActivity {
     }
     private void configurarGraficoRosca() {
 
-        // Configurações básicas do gráfico (rosca)
         pieChartConsumo.setDrawHoleEnabled(true);
         pieChartConsumo.setHoleRadius(55f);
         pieChartConsumo.setTransparentCircleRadius(60f);
@@ -210,40 +212,78 @@ public class Dashboard extends AppCompatActivity {
         if (user == null) return;
 
         String userId = user.getUid();
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
 
-        DatabaseReference comodosRef = FirebaseDatabase.getInstance()
-                .getReference("Usuarios")
-                .child(userId)
-                .child("Comodos");
-
-        comodosRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                ArrayList<PieEntry> entries = new ArrayList<>();
+                Map<String, Float> consumoPorComodo = new HashMap<>();
 
-                for (DataSnapshot comodoSnap : snapshot.getChildren()) {
+                DataSnapshot userSnap = snapshot.child("Usuarios").child(userId);
+                DataSnapshot sensoresGlobais = snapshot.child("dados");
 
-                    String nomeComodo = comodoSnap
-                            .child("nomeComodo")
-                            .getValue(String.class);
+                // eletrodoméstico para o sensor
+                Map<String, String> eletroParaSensor = new HashMap<>();
 
-                    if (nomeComodo == null) continue;
+                for (DataSnapshot sensorSnap : userSnap.child("dados").getChildren()) {
+                    String idSensor = sensorSnap.getKey();
+                    String idEletro = sensorSnap.child("idEletroAtivo").getValue(String.class);
 
-                    // 🔹 Consumo fictício (0.30 a 2.50 kWh)
-                    float consumoFake = 0.3f + (float) (Math.random() * 2.2f);
-
-                    entries.add(new PieEntry(consumoFake, nomeComodo));
+                    if (idSensor != null && idEletro != null) {
+                        eletroParaSensor.put(idEletro, idSensor);
+                    }
                 }
 
-                // Caso não existam cômodos cadastrados
+                // eletrodomésticos
+                for (DataSnapshot eletroSnap : userSnap.child("Eletronicos").getChildren()) {
+
+                    String idEletro = eletroSnap.getKey();
+                    String nomeComodo = eletroSnap.child("comodoEletro").getValue(String.class);
+
+                    if (idEletro == null || nomeComodo == null) continue;
+                    if (!eletroParaSensor.containsKey(idEletro)) continue;
+
+                    String idSensor = eletroParaSensor.get(idEletro);
+
+                    Object energiaObj = sensoresGlobais
+                            .child(idSensor)
+                            .child("energia")
+                            .getValue();
+
+                    if (energiaObj == null) continue;
+
+                    float energia;
+
+                    try {
+                        String energiaLimpa = energiaObj.toString()
+                                .replaceAll("[^\\d.]", "");
+                        energia = Float.parseFloat(energiaLimpa);
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    // somar os comodos
+                    float totalAtual = consumoPorComodo.containsKey(nomeComodo)
+                            ? consumoPorComodo.get(nomeComodo)
+                            : 0f;
+
+                    consumoPorComodo.put(nomeComodo, totalAtual + energia);
+                }
+
+                // montar o grafico
+                ArrayList<PieEntry> entries = new ArrayList<>();
+
+                for (Map.Entry<String, Float> item : consumoPorComodo.entrySet()) {
+                    entries.add(new PieEntry(item.getValue(), item.getKey()));
+                }
+
                 if (entries.isEmpty()) {
-                    pieChartConsumo.setCenterText("Nenhum cômodo\ncadastrado");
+                    pieChartConsumo.setCenterText("Sem dados\n de consumo");
                     pieChartConsumo.invalidate();
                     return;
                 }
 
-                // DataSet (visual das fatias)
                 PieDataSet dataSet = new PieDataSet(entries, "Consumo (kWh)");
                 dataSet.setSliceSpace(3f);
                 dataSet.setValueTextSize(12f);
@@ -252,25 +292,16 @@ public class Dashboard extends AppCompatActivity {
                         com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS
                 );
 
-                // 🔥 Formatação dos valores em kWh
-                dataSet.setValueFormatter(
-                        new com.github.mikephil.charting.formatter.ValueFormatter() {
-                            @Override
-                            public String getFormattedValue(float value) {
-                                return String.format(
-                                        java.util.Locale.US,
-                                        "%.2f kWh",
-                                        value
-                                );
-                            }
-                        }
-                );
+                dataSet.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value) {
+                        return String.format(Locale.getDefault(), "%.2f kWh", value);
+                    }
+                });
 
-                // Aplica os dados no gráfico
-                PieData data = new PieData(dataSet);
-                pieChartConsumo.setData(data);
-                pieChartConsumo.invalidate();
+                pieChartConsumo.setData(new PieData(dataSet));
                 pieChartConsumo.animateY(1200);
+                pieChartConsumo.invalidate();
             }
 
             @Override
