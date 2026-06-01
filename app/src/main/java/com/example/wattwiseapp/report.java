@@ -144,7 +144,7 @@ public class report extends AppCompatActivity {
                             if (energiaReal != null) {
                                 consumoTexto = String.format(Locale.getDefault(), "%.2f kWh", energiaReal);
 
-                                /* TODO: CÁLCULO TEMPORÁRIO PARA REALIZAR O CUSTO DO ELETRODOMÉSTICO
+                                /* TODO: CÁLCULO TEMPORÁRIO PARA REALIZAR O CUSTO DE ENERGIA DO ELETRODOMÉSTICO
                                 double tarifaPorKwh = 0.85;
                                 double custoCalculado = energiaReal * tarifaPorKwh; */
 
