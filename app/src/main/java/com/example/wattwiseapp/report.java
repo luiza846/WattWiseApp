@@ -130,7 +130,7 @@ public class report extends AppCompatActivity {
 
 
                             Object energiaObj = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue();
-                            String energiaLimpa = String.valueOf(energiaObj).replaceAll("[^\\d.]", "");
+                            String energiaLimpa = String.valueOf(energiaObj).replaceAll("[^\\d.]", ""); //regex para ignorar o "kWh" que está atrelado ao sensor no firebase para não ocorrer conflito ao puxar os dados para a tabela de relatorios
                             Double energiaReal = null;
 
                             if (energiaObj != null) {
