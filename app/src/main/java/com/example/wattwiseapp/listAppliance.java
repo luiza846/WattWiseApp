@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +36,9 @@ public class listAppliance extends AppCompatActivity {
     private ApplianceAdapter adapter;
     private List<Appliance> applianceList;
     private DatabaseReference databaseReference;
+    private ImageView imgVazio;
+    private LinearLayout layoutVazio;
+    TextView txtVazio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +47,10 @@ public class listAppliance extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        layoutVazio = findViewById(R.id.layoutVazio);
+
+        txtVazio = findViewById(R.id.txtVazio);
+        layoutVazio.setVisibility(View.GONE);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -126,6 +137,17 @@ public class listAppliance extends AppCompatActivity {
                     }
 
                     adapter.notifyDataSetChanged();
+
+                    // se nao tiver cadastrado nenhum eletrodomestico
+                    if (applianceList.isEmpty()) {
+                        layoutVazio.setVisibility(View.VISIBLE);
+                        txtVazio.setText(
+                                "Nenhum eletrodoméstico foi encontrado. " +
+                                        "Você precisa cadastrar um eletrodoméstico primeiro."
+                        );
+                    } else {
+                        txtVazio.setVisibility(View.GONE);
+                    }
 
                 }
 
