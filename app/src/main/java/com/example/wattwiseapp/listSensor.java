@@ -13,9 +13,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,7 +43,6 @@ public class listSensor extends AppCompatActivity {
         setContentView(R.layout.activity_list_sensor);
 
         layoutVazio = findViewById(R.id.layoutVazio);
-
         txtVazio = findViewById(R.id.txtVazio);
         layoutVazio.setVisibility(View.GONE);
 
@@ -60,9 +56,38 @@ public class listSensor extends AppCompatActivity {
         recyclerView = findViewById(R.id.listaSensores);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new SensorAdapter(this, listaSensores);
+        // IMPLEMENTANDO OS BOTÕES DE EDITAR E EXCLUIR AQUI!
+        adapter = new SensorAdapter(this, listaSensores, new SensorAdapter.OnItemClickListener() {
+            @Override
+            public void onEditClick(Sensor sensor) {
+                // Ao clicar em editar, manda de volta pra tela de conectar sensor
+                Intent intent = new Intent(listSensor.this, connectSensor.class);
+                intent.putExtra("idSensor", sensor.getIdSensor());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDeleteClick(Sensor sensor) {
+                // Exclui a permissão desse sensor da pasta do usuário
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    DatabaseReference ref = FirebaseDatabase.getInstance()
+                            .getReference("Usuarios")
+                            .child(currentUser.getUid())
+                            .child("dados")
+                            .child(sensor.getIdSensor());
+
+                    ref.removeValue().addOnSuccessListener(aVoid -> {
+                        Toast.makeText(listSensor.this, "Sensor excluído com sucesso!", Toast.LENGTH_SHORT).show();
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(listSensor.this, "Erro ao excluir: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
         recyclerView.setAdapter(adapter);
 
+        // Preencher a lista vinda do Firebase
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
@@ -86,16 +111,12 @@ public class listSensor extends AppCompatActivity {
                     }
                     adapter.notifyDataSetChanged();
 
-
                     // se nao tiver cadastrado nenhum sensor
                     if (listaSensores.isEmpty()) {
                         layoutVazio.setVisibility(View.VISIBLE);
-                        txtVazio.setText(
-                                "Nenhum sensor disponível " +
-                                        " Conecte um para prosseguir"
-                        );
+                        txtVazio.setText("Nenhum sensor disponível. Conecte um para prosseguir.");
                     } else {
-                        txtVazio.setVisibility(View.GONE);
+                        layoutVazio.setVisibility(View.GONE);
                     }
                 }
 
@@ -144,14 +165,8 @@ public class listSensor extends AppCompatActivity {
             return true;
         } else if (id == R.id.logout) {
             FirebaseAuth.getInstance().signOut();
-
             Intent intent = new Intent(listSensor.this, MainActivity.class);
-
-            intent.setFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK
-            );
-
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         } else if (id == R.id.menu_conectar) {
