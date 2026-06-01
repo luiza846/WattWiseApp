@@ -130,24 +130,27 @@ public class report extends AppCompatActivity {
 
 
                             Object energiaObj = sensoresGlobaisSnap.child(nomeSensorAtrelado).child("energia").getValue();
-                            String energiaLimpa = String.valueOf(energiaObj).replaceAll("[^\\d.]", ""); //regex para ignorar o "kWh" que está atrelado ao sensor no firebase para não ocorrer conflito ao puxar os dados para a tabela de relatorios
                             Double energiaReal = null;
 
                             if (energiaObj != null) {
                                 try {
+                                    String energiaLimpa = String.valueOf(energiaObj).replaceAll("[^\\d.]", ""); //regex para ignorar o "kWh" que está atrelado ao sensor no firebase para não ocorrer conflito ao puxar os dados para a tabela de relatorios
                                     energiaReal = Double.parseDouble(energiaLimpa);
                                 } catch (NumberFormatException e) {
                                     energiaReal = null;
                                 }
                             }
 
-
                             if (energiaReal != null) {
                                 consumoTexto = String.format(Locale.getDefault(), "%.2f kWh", energiaReal);
+
+                                /* TODO: CÁLCULO TEMPORÁRIO PARA REALIZAR O CUSTO DO ELETRODOMÉSTICO
+                                double tarifaPorKwh = 0.85;
+                                double custoCalculado = energiaReal * tarifaPorKwh; */
+
                             } else {
                                 consumoTexto = "Agurdando dados..."; // Sensor conectado, mas ESP32 ainda não enviou energia
                             }
-
                         }
 
                         dadosReais.add(new String[]{comodo, nome, consumoTexto});
