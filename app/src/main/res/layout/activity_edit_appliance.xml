@@ -7,20 +7,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
+    android:fitsSystemWindows="true"
     tools:context=".editAppliance">
 
-    <!-- Toolbar igual ao cadastro -->
+    <!--menu-->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2F3B75"
-        android:title="Editar Eletrodoméstico"
+        android:background="#2B3D4F"
+        android:title="Lista de comodos"
         android:titleTextColor="@android:color/white"
-        app:popupTheme="@style/MenuBranco"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/MenuBranco" />
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="32dp"
+        android:layout_gravity="start"
+        android:layout_marginStart="-200dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logoo"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="@+id/toolbar"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <!-- Título da tela -->
     <TextView
@@ -112,11 +126,12 @@
     <!-- Botão Salvar -->
     <Button
         android:id="@+id/btnSalvarEdicao"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="53dp"
         android:layout_marginBottom="50dp"
-        android:backgroundTint="#2F3B75"
-        android:text="Salvar"
+        android:backgroundTint="#2b3d4f"
+        android:text="SALVAR"
+        app:cornerRadius="7dp"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

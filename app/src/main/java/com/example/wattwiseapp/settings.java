@@ -1,6 +1,7 @@
 package com.example.wattwiseapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
@@ -39,17 +40,56 @@ public class settings extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //salva o estado da aparencia
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        int themeMode = prefs.getInt("app_theme", AppCompatDelegate.MODE_NIGHT_NO);
+        AppCompatDelegate.setDefaultNightMode(themeMode);
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_settings);
+
 
         // botao
         btnLogOut = findViewById(R.id.btnLogOut);
         btnChangePassword = findViewById(R.id.btnChangePassword);
         // chamar o metodo
         carregarDadosUsuario();
+
         //spinner
         Spinner spinner = findViewById(R.id.edtAparencia);
+
+        // ajusta spinner conforme tema salvo
+        if (themeMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            spinner.setSelection(1); // Escuro
+        } else {
+            spinner.setSelection(0); // Claro
+        }
+
+        // salva mudança de aparência
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                SharedPreferences.Editor editor =
+                        getSharedPreferences("app_prefs", MODE_PRIVATE).edit();
+
+                if (position == 0) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    editor.putInt("app_theme", AppCompatDelegate.MODE_NIGHT_NO);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    editor.putInt("app_theme", AppCompatDelegate.MODE_NIGHT_YES);
+                }
+
+                editor.apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
         // display
         txtDisplayNome = findViewById(R.id.txtDisplayNome);
         txtDisplayEmail = findViewById(R.id.txtDisplayEmail);
@@ -75,27 +115,6 @@ public class settings extends AppCompatActivity {
                 Intent i = new Intent(settings.this, MainActivity.class);
                 startActivity(i);
             }
-        });
-
-        // alterar aparencia
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Claro
-                        break;
-                    case 1:
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES); // Escuro
-                        break;
-                    case 2:
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM); // Sistema
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         // btn trocar senha

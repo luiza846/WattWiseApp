@@ -36,19 +36,20 @@
         app:layout_constraintTop_toTopOf="@id/imgBackground"
         app:layout_constraintVertical_bias="0.156" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRegisterLog"
         android:layout_width="262dp"
         android:layout_height="53dp"
         android:layout_marginBottom="30dp"
-        android:backgroundTint="#FFFFFF"
         android:text="CRIAR CONTA"
         android:textColor="@color/black"
+        app:backgroundTint="@android:color/white"
+        app:strokeWidth="1dp"
+        app:strokeColor="#CFCFD1"
+        app:cornerRadius="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
-
     <Button
         android:id="@+id/btnLoginLog"
         android:layout_width="262dp"
@@ -56,6 +57,7 @@
         android:layout_marginBottom="80dp"
         android:backgroundTint="#2b3d4f"
         android:text="ENTRAR"
+        app:cornerRadius="7dp"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/btnRegisterLog"
         app:layout_constraintEnd_toEndOf="parent"

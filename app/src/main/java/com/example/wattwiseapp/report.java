@@ -181,25 +181,29 @@ public class report extends AppCompatActivity {
 
         // --- Desenhar o Conteúdo do Relatório ---
 
-// 1. Carrega a imagem original em alta resolução
+// --- Desenhar o Conteúdo do Relatório ---
+
+// 1. Carrega a imagem original em alta resolução (Mantém intacta)
         android.graphics.Bitmap logoOriginal = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.wattwise);
 
-        // 2. Definimos a largura ideal que queremos que ela ocupe no PDF (ex: 150 pontos)
-        int larguraDesejadaPdf = 150;
+// 2. Define o tamanho visual que você quer que ela ocupe no PDF (em pontos)
+        float larguraDesejadaPdf = 150f;
 
-        // 3. MATEMÁTICA DA PROPORÇÃO: Calcula a altura correta baseada na proporção original (1872x603)
-        // Isso evita que a imagem fique esticada ou achatada
-        int alturaProporcionalPdf = (larguraDesejadaPdf * logoOriginal.getHeight()) / logoOriginal.getWidth();
+// 3. Calcula o fator de escala necessário baseado no tamanho original da imagem
+        float escala = larguraDesejadaPdf / logoOriginal.getWidth();
 
-        // 4. Redimensiona com o filtro 'filter = true' ativado (isso remove o efeito pixelado e suaviza as bordas)
-        android.graphics.Bitmap logoPerfeita = android.graphics.Bitmap.createScaledBitmap(logoOriginal, larguraDesejadaPdf, alturaProporcionalPdf, true);
+// 4. Cria uma Matrix para aplicar o redimensionamento e o posicionamento
+        android.graphics.Matrix matrix = new android.graphics.Matrix();
+        matrix.postScale(escala, escala); // Aplica a escala proporcional
+        matrix.postTranslate(40, 25);     // Define a posição (Margem esquerda X=40, Topo Y=25)
 
-        // 5. Desenha a logo ajustada (Margem esquerda X=40, Topo Y=25)
-        canvas.drawBitmap(logoPerfeita, 40, 25, null);
+// 5. Configura o Paint com filtros de alta qualidade para a renderização
+        android.graphics.Paint paintLogo = new android.graphics.Paint();
+        paintLogo.setAntiAlias(true);
+        paintLogo.setFilterBitmap(true); // Garante a suavização ao desenhar no PDF
 
-        // 6. Define onde o texto deve começar logo após a logo ajustada
-        int fimDaLogoY = 25 + alturaProporcionalPdf;
-
+// 6. Desenha a logo original usando a matrix e o paint configurados
+        canvas.drawBitmap(logoOriginal, matrix, paintLogo);
         // texto
         paint.setColor(Color.BLACK);
         paint.setTextSize(14);
@@ -209,8 +213,8 @@ public class report extends AppCompatActivity {
         paint.setColor(Color.BLACK);
         paint.setTextSize(12);
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        canvas.drawText("Consumo do Mês: 250 kWh", 40, 125, paint);
-        canvas.drawText("Valor Estimado Total: R$ 180,00", 40, 147, paint);
+        canvas.drawText("Consumo do Mês: 250 kWh", 40, 145, paint);
+        canvas.drawText("Valor Estimado Total: R$ 180,00", 40, 162, paint);
 
         // Linha divisória abaixo dos títulos (Ajustada para Y = 90)
         paint.setColor(Color.GRAY);
@@ -222,7 +226,7 @@ public class report extends AppCompatActivity {
         // ---------------------------------------------------------
         int inicioX = 40;       // Margem esquerda
         int fimX = 555;         // Margem direita
-        int linhaY = 170;       // Posição Y inicial da tabela
+        int linhaY = 190;       // Posição Y inicial da tabela
         int alturaLinha = 30;   // Espaçamento vertical entre as linhas
 
         // Definição das colunas (Posição X onde cada uma começa)

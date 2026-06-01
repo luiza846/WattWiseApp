@@ -196,47 +196,93 @@ public class Dashboard extends AppCompatActivity {
         lineChart.invalidate();
     }
     private void configurarGraficoRosca() {
-        // 1. Ativa o "buraco" no meio para virar um gráfico Doughnut
+
+        // Configurações básicas do gráfico (rosca)
         pieChartConsumo.setDrawHoleEnabled(true);
-        pieChartConsumo.setHoleRadius(50f); // Tamanho da rosca (em %)
-
-        // 2. Adiciona o texto centralizado (Foco em Conscientização: Gasto Total)
-        pieChartConsumo.setCenterText("Total de Hoje\nR$ 18,50");
-        pieChartConsumo.setCenterTextSizePixels(35f);
+        pieChartConsumo.setHoleRadius(55f);
+        pieChartConsumo.setTransparentCircleRadius(60f);
+        pieChartConsumo.setCenterText("Consumo por\nCômodo");
+        pieChartConsumo.setCenterTextSize(16f);
         pieChartConsumo.setCenterTextColor(Color.DKGRAY);
+        pieChartConsumo.getDescription().setEnabled(false);
 
-        // 3. Criando a lista de dados (Entries)
-        ArrayList<PieEntry> entradas = new ArrayList<>();
-        entradas.add(new PieEntry(40f, "Cozinha"));
-        entradas.add(new PieEntry(35f, "Quarto"));
-        entradas.add(new PieEntry(25f, "Banheiro"));
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
 
+        String userId = user.getUid();
 
-        // 4. Configurando o DataSet (Visual das fatias)
-        PieDataSet dataSet = new PieDataSet(entradas, "Consumo por Cômodo");
-        dataSet.setSliceSpace(3f); // Espaçamento elegante entre as fatias
+        DatabaseReference comodosRef = FirebaseDatabase.getInstance()
+                .getReference("Usuarios")
+                .child(userId)
+                .child("Comodos");
 
-        // Definindo as cores das fatias usando Hexadecimal
-        ArrayList<Integer> cores = new ArrayList<>();
-        cores.add(Color.parseColor("#2ECC71")); // Verde (Cozinha)
-        cores.add(Color.parseColor("#3498DB")); // Azul (Quarto)
-        cores.add(Color.parseColor("#E74C3C")); // Vermelho (Banheiro)
-        dataSet.setColors(cores);
+        comodosRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-        // Configuração dos textos dentro das fatias
-        dataSet.setValueTextSize(12f);
-        dataSet.setValueTextColor(Color.WHITE);
+                ArrayList<PieEntry> entries = new ArrayList<>();
 
-        // 5. Junta tudo e renderiza na tela
-        PieData data = new PieData(dataSet);
-        pieChartConsumo.setData(data);
+                for (DataSnapshot comodoSnap : snapshot.getChildren()) {
 
-        // Ajustes estéticos finais de UX
-        pieChartConsumo.getDescription().setEnabled(false); // Remove legenda padrão do canto
-        pieChartConsumo.getLegend().setEnabled(true); // Ativa a legenda dos cômodos
-        pieChartConsumo.animateY(1400); // Animação de entrada bem fluida
+                    String nomeComodo = comodoSnap
+                            .child("nomeComodo")
+                            .getValue(String.class);
+
+                    if (nomeComodo == null) continue;
+
+                    // 🔹 Consumo fictício (0.30 a 2.50 kWh)
+                    float consumoFake = 0.3f + (float) (Math.random() * 2.2f);
+
+                    entries.add(new PieEntry(consumoFake, nomeComodo));
+                }
+
+                // Caso não existam cômodos cadastrados
+                if (entries.isEmpty()) {
+                    pieChartConsumo.setCenterText("Nenhum cômodo\ncadastrado");
+                    pieChartConsumo.invalidate();
+                    return;
+                }
+
+                // DataSet (visual das fatias)
+                PieDataSet dataSet = new PieDataSet(entries, "Consumo (kWh)");
+                dataSet.setSliceSpace(3f);
+                dataSet.setValueTextSize(12f);
+                dataSet.setValueTextColor(Color.WHITE);
+                dataSet.setColors(
+                        com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS
+                );
+
+                // 🔥 Formatação dos valores em kWh
+                dataSet.setValueFormatter(
+                        new com.github.mikephil.charting.formatter.ValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value) {
+                                return String.format(
+                                        java.util.Locale.US,
+                                        "%.2f kWh",
+                                        value
+                                );
+                            }
+                        }
+                );
+
+                // Aplica os dados no gráfico
+                PieData data = new PieData(dataSet);
+                pieChartConsumo.setData(data);
+                pieChartConsumo.invalidate();
+                pieChartConsumo.animateY(1200);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(
+                        Dashboard.this,
+                        "Erro ao carregar gráfico",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
     }
-
 
     // carregar o nome do usuário
     private void carregarDadosUsuario() {

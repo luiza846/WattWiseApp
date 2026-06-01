@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".register">
 
     <TextView
@@ -80,7 +81,7 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:backgroundTint="#2B3D4F"
-        android:text="Registrar"
+        android:text="REGISTRAR"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

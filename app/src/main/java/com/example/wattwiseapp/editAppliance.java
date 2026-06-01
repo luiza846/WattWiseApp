@@ -1,6 +1,9 @@
 package com.example.wattwiseapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,6 +49,12 @@ public class editAppliance extends AppCompatActivity {
         // Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        // Garante que o título do app fique em branco na Action Bar de suporte
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         // Vincula os campos do layout
         editNome      = findViewById(R.id.editNomeEletro);
@@ -131,6 +140,58 @@ public class editAppliance extends AppCompatActivity {
         // Botão salvar
         Button btnSalvar = findViewById(R.id.btnSalvarEdicao);
         btnSalvar.setOnClickListener(v -> salvarEdicao());
+    }
+
+    // menu
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.sensor) {
+            Intent i = new Intent(editAppliance.this, listSensor.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.comodo) {
+            Intent i = new Intent(editAppliance.this, listRoom.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.eletronicos) {
+            Intent i = new Intent(editAppliance.this, listAppliance.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.relatorios) {
+            Intent i = new Intent(editAppliance.this, report.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.metas) {
+            Intent i = new Intent(editAppliance.this, Dashboard.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.configuracao) {
+            Intent i = new Intent(editAppliance.this, settings.class);
+            startActivity(i);
+            return true;
+        } else if (id == R.id.logout) {
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(editAppliance.this, MainActivity.class);
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_principal, menu);
+        return true;
     }
 
     private void salvarEdicao() {
