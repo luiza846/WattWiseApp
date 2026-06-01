@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -33,12 +36,19 @@ public class listSensor extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SensorAdapter adapter;
     private List<Sensor> listaSensores;
+    private LinearLayout layoutVazio;
+    TextView txtVazio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_sensor);
+
+        layoutVazio = findViewById(R.id.layoutVazio);
+
+        txtVazio = findViewById(R.id.txtVazio);
+        layoutVazio.setVisibility(View.GONE);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,6 +85,18 @@ public class listSensor extends AppCompatActivity {
                         }
                     }
                     adapter.notifyDataSetChanged();
+
+
+                    // se nao tiver cadastrado nenhum sensor
+                    if (listaSensores.isEmpty()) {
+                        layoutVazio.setVisibility(View.VISIBLE);
+                        txtVazio.setText(
+                                "Nenhum sensor disponível " +
+                                        " Conecte um para prosseguir"
+                        );
+                    } else {
+                        txtVazio.setVisibility(View.GONE);
+                    }
                 }
 
                 @Override

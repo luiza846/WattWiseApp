@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -22,11 +25,19 @@ public class listRoom extends AppCompatActivity {
     private RoomAdapter adapter;
     private java.util.List<Room> listaDeComodos;
 
+    private LinearLayout layoutVazio;
+    TextView txtVazio;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_room);
+
+        layoutVazio = findViewById(R.id.layoutVazio);
+
+        txtVazio = findViewById(R.id.txtVazio);
+        layoutVazio.setVisibility(View.GONE);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -84,6 +95,7 @@ public class listRoom extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
+
         // Listagem do Firebase
         com.google.firebase.auth.FirebaseUser currentUser =
                 com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
@@ -113,6 +125,17 @@ public class listRoom extends AppCompatActivity {
                     }
 
                     adapter.notifyDataSetChanged();
+
+                    // se nao tiver cadastrado nenhum comodo
+                    if (listaDeComodos.isEmpty()) {
+                        layoutVazio.setVisibility(View.VISIBLE);
+                        txtVazio.setText(
+                                "Nenhum registro encontrado " +
+                                        " Cadastre um cômodo"
+                        );
+                    } else {
+                        txtVazio.setVisibility(View.GONE);
+                    }
                 }
 
                 @Override

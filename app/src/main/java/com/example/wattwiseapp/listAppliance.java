@@ -36,7 +36,6 @@ public class listAppliance extends AppCompatActivity {
     private ApplianceAdapter adapter;
     private List<Appliance> applianceList;
     private DatabaseReference databaseReference;
-    private ImageView imgVazio;
     private LinearLayout layoutVazio;
     TextView txtVazio;
 
@@ -142,8 +141,8 @@ public class listAppliance extends AppCompatActivity {
                     if (applianceList.isEmpty()) {
                         layoutVazio.setVisibility(View.VISIBLE);
                         txtVazio.setText(
-                                "Nenhum eletrodoméstico foi encontrado. " +
-                                        "Você precisa cadastrar um eletrodoméstico primeiro."
+                                "Nenhum registro encontrado " +
+                                        " Cadastre um eletrodoméstico"
                         );
                     } else {
                         txtVazio.setVisibility(View.GONE);
