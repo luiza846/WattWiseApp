@@ -15,6 +15,8 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -61,13 +63,52 @@ public class report extends AppCompatActivity {
 
     Button btnRelatorio;
 
-    private List<String[]> dadosReais = new ArrayList<>(); // lista global para guardar os dados reais do firebase
+    private List<String[]> dadosReais = new ArrayList<>();
+    private int diasSelecionados = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_report);
+
+        // tabela no app
+        edtPeriodo = findViewById(R.id.edtPeriodo);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.periodo,
+                android.R.layout.simple_spinner_item
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        edtPeriodo.setAdapter(adapter);
+
+
+        edtPeriodo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                edtPeriodo.setPopupBackgroundResource(android.R.color.white);
+
+                // texto do item selecionado (spinner fechado)
+                if (view instanceof TextView) {
+                    ((TextView) view).setTextColor(Color.BLACK);
+                }
+
+
+                switch (position) {
+                    case 0: diasSelecionados = 1; break;
+                    case 1: diasSelecionados = 7; break;
+                    case 2: diasSelecionados = 30; break;
+                    case 3: diasSelecionados = 90; break;
+                }
+
+                carregarTabela();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         // botao
         btnRelatorio = findViewById(R.id.btnRelatorio);
@@ -101,7 +142,7 @@ public class report extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     dadosReais.clear(); //limpa lista antiga
-                    tableLayout.removeAllViews(); //limpa linhas visuais da tela
+                    tableLayout.removeViews(1, tableLayout.getChildCount() - 1); //limpa linhas visuais da tela
 
                     DataSnapshot userSnap = snapshot.child("Usuarios").child(userId);
                     DataSnapshot sensoresGlobaisSnap = snapshot.child("dados");
@@ -167,6 +208,7 @@ public class report extends AppCompatActivity {
                     inserirDadosTabela(dadosReais);
 
                 }
+
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
@@ -464,74 +506,181 @@ public class report extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_principal, menu);
+        return true;
+    }
+
     // dados provisorio (gerado pela ia) Pedro realizar a consulta no banco de dados
 
     private void inserirDadosTabela(List<String[]> listaItens) {
 
+        tableLayout.removeAllViews();
+
         for (int i = 0; i < listaItens.size(); i++) {
+
             String[] item = listaItens.get(i);
 
             TableRow row = new TableRow(this);
             row.setPadding(10, 25, 10, 25);
 
-            if (i % 2 == 0) {
-                row.setBackgroundColor(Color.parseColor("#F9F9F9"));
-            } else {
-                row.setBackgroundColor(Color.parseColor("#FFFFFF"));
-            }
+            row.setBackgroundColor(i % 2 == 0 ?
+                    Color.parseColor("#F9F9F9") :
+                    Color.parseColor("#FFFFFF"));
 
-            // Configuração de LayoutParams para aplicar os pesos via código
-            TableRow.LayoutParams paramsOrigem = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.6f);
-            TableRow.LayoutParams paramsImpacto = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
-            TableRow.LayoutParams paramsCusto = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
+            TableRow.LayoutParams paramsOrigem =
+                    new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.6f);
 
-            // origem
-            android.widget.LinearLayout containerOrigem = new android.widget.LinearLayout(this);
-            containerOrigem.setOrientation(android.widget.LinearLayout.VERTICAL);
+            TableRow.LayoutParams paramsImpacto =
+                    new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
+
+            TableRow.LayoutParams paramsCusto =
+                    new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1.2f);
+
+            // ORIGEM (aparelho + cômodo)
+            LinearLayout containerOrigem = new LinearLayout(this);
+            containerOrigem.setOrientation(LinearLayout.VERTICAL);
             containerOrigem.setGravity(Gravity.CENTER);
             containerOrigem.setLayoutParams(paramsOrigem);
 
-            TextView txtEletrodomestico = new TextView(this);
-            txtEletrodomestico.setText(item[1]);
-            txtEletrodomestico.setTextColor(Color.BLACK);
-            txtEletrodomestico.setTypeface(null, android.graphics.Typeface.BOLD);
-            txtEletrodomestico.setTextSize(15);
-            txtEletrodomestico.setGravity(Gravity.CENTER);
+            TextView txtEletro = new TextView(this);
+            txtEletro.setText(item[1]);
+            txtEletro.setTypeface(null, Typeface.BOLD);
+            txtEletro.setTextSize(15);
+            txtEletro.setTextColor(Color.BLACK);
+            txtEletro.setGravity(Gravity.CENTER);
 
             TextView txtComodo = new TextView(this);
             txtComodo.setText(item[0]);
-            txtComodo.setTextColor(Color.GRAY);
             txtComodo.setTextSize(12);
+            txtComodo.setTextColor(Color.GRAY);
             txtComodo.setGravity(Gravity.CENTER);
 
-            containerOrigem.addView(txtEletrodomestico);
+            containerOrigem.addView(txtEletro);
             containerOrigem.addView(txtComodo);
 
-            // consumo (kWh)
+            // consumo
             TextView txtConsumo = new TextView(this);
             txtConsumo.setText(item[2]);
-            txtConsumo.setTextColor(Color.BLACK);
-            txtConsumo.setTextSize(15);
-            txtConsumo.setGravity(Gravity.CENTER);
             txtConsumo.setLayoutParams(paramsImpacto);
+            txtConsumo.setTextColor(Color.BLACK);
+            txtConsumo.setTypeface(null, Typeface.BOLD);
+            txtConsumo.setGravity(Gravity.CENTER);
 
-            // custo
+            // custo (AGORA CORRETO)
             TextView txtCusto = new TextView(this);
-            // calcula o custo (REVISAR)
-            txtCusto.setText("R$ " + (45.50 + (i * 12)));
-            txtCusto.setTextColor(Color.parseColor("#2F3B75"));
-            txtCusto.setTypeface(null, android.graphics.Typeface.BOLD);
-            txtCusto.setTextSize(15);
-            txtCusto.setGravity(Gravity.CENTER);
+            txtCusto.setText(item.length > 3 ? item[3] : "R$ -");
+            txtCusto.setTypeface(null, Typeface.BOLD);
+            txtCusto.setTextColor(Color.BLACK);
             txtCusto.setLayoutParams(paramsCusto);
+            txtCusto.setGravity(Gravity.CENTER);
 
-            // add linha
             row.addView(containerOrigem);
             row.addView(txtConsumo);
             row.addView(txtCusto);
 
             tableLayout.addView(row);
         }
+    }
+    private void carregarTabela() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                dadosReais.clear();
+                tableLayout.removeAllViews();
+
+                DataSnapshot userSnap = snapshot.child("Usuarios").child(user.getUid());
+                DataSnapshot historicoSnap = snapshot.child("historico_sensores");
+
+                Map<String, String> sensorToEletro = new HashMap<>();
+                Map<String, String> eletroToNome = new HashMap<>();
+                Map<String, String> eletroToComodo = new HashMap<>();
+
+                for (DataSnapshot s : userSnap.child("dados").getChildren()) {
+                    sensorToEletro.put(s.getKey(), s.child("idEletroAtivo").getValue(String.class));
+                }
+
+                for (DataSnapshot e : userSnap.child("Eletronicos").getChildren()) {
+                    eletroToNome.put(e.getKey(), e.child("nomeEletro").getValue(String.class));
+                    eletroToComodo.put(e.getKey(), e.child("comodoEletro").getValue(String.class));
+                }
+
+                long limite = System.currentTimeMillis()
+                        - (diasSelecionados * 24L * 60 * 60 * 1000);
+
+                SimpleDateFormat sdf =
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+                Map<String, Float> consumoPorEletro = new HashMap<>();
+                Map<String, String> comodoMap = new HashMap<>();
+
+                for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
+
+                    String sensorId = sensorSnap.getKey();
+                    String idEletro = sensorToEletro.get(sensorId);
+
+                    if (idEletro == null) continue;
+
+                    String nome = eletroToNome.get(idEletro);
+                    String comodo = eletroToComodo.get(idEletro);
+
+                    if (nome == null || comodo == null) continue;
+
+                    for (DataSnapshot leitura : sensorSnap.getChildren()) {
+
+                        try {
+                            String energiaStr = leitura.child("energia").getValue(String.class);
+                            String data = leitura.child("data").getValue(String.class);
+                            String hora = leitura.child("hora").getValue(String.class);
+
+                            if (energiaStr == null || data == null || hora == null) continue;
+
+                            Date date = sdf.parse(data + " " + hora);
+                            if (date == null || date.getTime() < limite) continue;
+
+                            float energia = Float.parseFloat(
+                                    energiaStr.replace("kWh", "").trim()
+                            );
+
+                            float atual = consumoPorEletro.getOrDefault(nome, 0f);
+                            consumoPorEletro.put(nome, atual + energia);
+                            comodoMap.put(nome, comodo);
+
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                List<String[]> lista = new ArrayList<>();
+
+                for (String eletro : consumoPorEletro.keySet()) {
+
+                    String comodo = comodoMap.get(eletro);
+                    float consumo = consumoPorEletro.get(eletro);
+
+                    float custo = consumo * 0.92f;
+
+                    lista.add(new String[]{
+                            comodo,
+                            eletro,
+                            String.format(Locale.getDefault(), "%.2f kWh", consumo),
+                            String.format(Locale.getDefault(), "R$ %.2f", custo)
+                    });
+                }
+
+                inserirDadosTabela(lista);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
     }
 
 }

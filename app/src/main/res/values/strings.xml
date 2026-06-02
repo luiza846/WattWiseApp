@@ -22,7 +22,8 @@
         <item>Chuveiro elétrico</item>
     </string-array>
     <string-array name="periodo">
-        <item>15 dias</item>
+        <item>Hoje</item>
+        <item>7 dias</item>
         <item>30 dias</item>
         <item>90 dias</item>
     </string-array>
