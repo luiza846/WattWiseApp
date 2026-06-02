@@ -268,7 +268,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="35dp"
             android:layout_marginBottom="24dp"
-            android:text="Ações principais"
+            android:text="Consumo por Cômodo (por dia)"
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"

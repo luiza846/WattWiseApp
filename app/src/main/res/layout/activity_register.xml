@@ -8,6 +8,30 @@
     android:background="#FFFFFF"
     tools:context=".register">
 
+
+    <ImageView
+        android:id="@+id/imgBackground"
+        android:layout_width="857dp"
+        android:layout_height="230dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/wave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.649"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="236dp"
+        android:layout_height="77dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logodois"
+        app:layout_constraintBottom_toBottomOf="@+id/imgBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.188"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.222" />
+
     <TextView
         android:id="@+id/txtDisplayInfoReg"
         android:layout_width="wrap_content"
@@ -51,15 +75,18 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="197dp"
+        android:layout_marginBottom="20dp"
         android:text="CRIAR CONTA"
         android:textColor="#000000"
-        android:textSize="18sp"
+        android:textSize="22sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/edtFullNameReg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <EditText
         android:id="@+id/edtFullNameReg"
@@ -81,6 +108,7 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:backgroundTint="#2B3D4F"
+        app:cornerRadius="7dp"
         android:text="REGISTRAR"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
