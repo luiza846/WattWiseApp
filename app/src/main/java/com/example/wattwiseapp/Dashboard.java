@@ -56,7 +56,7 @@ public class Dashboard extends AppCompatActivity {
     private LineChart lineChart;
     private PieChart pieChartConsumo;
     TextView displayName;
-    private TextView displayConsumoTotal, displayCustoEstimado, displayPico, displayHoraPico, displayMenorConsumo, displayHoraMenor;
+    private TextView displayConsumoTotal, displayCustoEstimado, displayPico, displayHoraPico, displayMenorConsumo, displayHoraMenor, displayEletConsumo, displayConsElet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +91,8 @@ public class Dashboard extends AppCompatActivity {
         displayHoraPico = findViewById(R.id.displayHoraPico);
         displayMenorConsumo = findViewById(R.id.displayMenorConsumo);
         displayHoraMenor = findViewById(R.id.displayHoraMenor);
+        displayConsElet = findViewById(R.id.displayConsElet);
+        displayEletConsumo = findViewById(R.id.displayEletConsumo);
 
         calcularConsumoECusto();
 
@@ -156,69 +158,148 @@ public class Dashboard extends AppCompatActivity {
     // exibir infos de consumo de energia (total e custo)
     private void calcularConsumoECusto() {
 
-        DatabaseReference historicoRef = FirebaseDatabase
-                .getInstance()
-                .getReference()
-                .child("historico_sensores");
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
 
-        historicoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
+                DataSnapshot historicoSnap = snapshot.child("historico_sensores");
+                DataSnapshot userSnap = snapshot.child("Usuarios")
+                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
                 float consumoTotal = 0f;
 
-                // consumo por hora (0–23)
                 Map<Integer, Float> consumoPorHora = new HashMap<>();
 
-                for (DataSnapshot sensorSnap : snapshot.getChildren()) {
+                // =========================
+                // MAPAS
+                // =========================
 
-                    for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
+                Map<String, String> sensorParaEletro = new HashMap<>();
+                Map<String, String> eletroParaNome = new HashMap<>();
 
-                        Object energiaObj = leituraSnap.child("energia").getValue();
-                        String horaStr = leituraSnap.child("hora").getValue(String.class);
+                // sensor -> eletro
+                for (DataSnapshot s : userSnap.child("dados").getChildren()) {
 
-                        if (energiaObj == null || horaStr == null) continue;
+                    String sensorId = s.getKey();
+                    String idEletro = s.child("idEletroAtivo").getValue(String.class);
 
-                        try {
-                            String energiaLimpa = energiaObj.toString()
-                                    .replaceAll("[^\\d.]", "");
-
-                            float energia = Float.parseFloat(energiaLimpa);
-
-                            consumoTotal += energia;
-
-                            // pega só a hora (ex: "13:05:36" -> 13)
-                            int hora = Integer.parseInt(horaStr.split(":")[0]);
-
-                            float atual = consumoPorHora.containsKey(hora)
-                                    ? consumoPorHora.get(hora)
-                                    : 0f;
-
-                            consumoPorHora.put(hora, atual + energia);
-
-                        } catch (Exception e) {
-                            // ignora erro
-                        }
+                    if (sensorId != null && idEletro != null) {
+                        sensorParaEletro.put(sensorId, idEletro);
                     }
                 }
 
-                final float VALOR_KWH = 0.92f;
-                float custoEstimado = consumoTotal * VALOR_KWH;
+                // eletro -> nome
+                for (DataSnapshot e : userSnap.child("Eletronicos").getChildren()) {
 
-                // TOTAL
+                    String id = e.getKey();
+                    String nome = e.child("nomeEletro").getValue(String.class);
+
+                    if (id != null && nome != null) {
+                        eletroParaNome.put(id, nome);
+                    }
+                }
+
+                // =========================
+                // TOP ELETRO
+                // =========================
+                Map<String, Float> consumoPorEletro = new HashMap<>();
+
+                long agora = System.currentTimeMillis();
+                long limite24h = agora - (24 * 60 * 60 * 1000);
+
+                SimpleDateFormat sdf =
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+                // =========================
+                // PERCORRER HISTÓRICO
+                // =========================
+                for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
+
+                    String sensorId = sensorSnap.getKey();
+                    if (!sensorParaEletro.containsKey(sensorId)) continue;
+
+                    String idEletro = sensorParaEletro.get(sensorId);
+                    String nomeEletro = eletroParaNome.get(idEletro);
+
+                    if (nomeEletro == null) continue;
+
+                    for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
+
+                        String energiaStr = leituraSnap.child("energia").getValue(String.class);
+                        String data = leituraSnap.child("data").getValue(String.class);
+                        String hora = leituraSnap.child("hora").getValue(String.class);
+
+                        if (energiaStr == null || data == null || hora == null) continue;
+
+                        try {
+                            Date date = sdf.parse(data + " " + hora);
+                            if (date == null) continue;
+
+                            long time = date.getTime();
+
+                            // filtro 24h
+                            if (time < limite24h) continue;
+
+                            energiaStr = energiaStr.replace("kWh", "").trim();
+                            float energia = Float.parseFloat(energiaStr);
+
+                            consumoTotal += energia;
+
+                            // por hora
+                            int h = Integer.parseInt(hora.split(":")[0]);
+
+                            consumoPorHora.put(h,
+                                    consumoPorHora.getOrDefault(h, 0f) + energia);
+
+                            // por eletro
+                            consumoPorEletro.put(nomeEletro,
+                                    consumoPorEletro.getOrDefault(nomeEletro, 0f) + energia);
+
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                // =========================
+                // ELETRO MAIS CONSUMIDOR
+                // =========================
+                String topEletro = "";
+                float maiorConsumo = 0f;
+
+                for (Map.Entry<String, Float> entry : consumoPorEletro.entrySet()) {
+
+                    if (entry.getValue() > maiorConsumo) {
+                        maiorConsumo = entry.getValue();
+                        topEletro = entry.getKey();
+                    }
+                }
+
+                // =========================
+                // UI
+                // =========================
+
+                final float VALOR_KWH = 0.92f;
+                float custo = consumoTotal * VALOR_KWH;
+
                 displayConsumoTotal.setText(
-                        String.format(Locale.getDefault(),
-                                "%.2f kWh",
-                                consumoTotal)
+                        String.format(Locale.getDefault(), "%.2f kWh", consumoTotal)
                 );
 
                 displayCustoEstimado.setText(
-                        String.format(Locale.getDefault(),
-                                "R$ %.2f",
-                                custoEstimado)
+                        String.format(Locale.getDefault(), "R$ %.2f", custo)
                 );
 
-                // 🔥 PICO E MENOR (por hora)
+                // 🔥 ELETRO TOP
+                displayEletConsumo.setText(topEletro);
+
+                displayConsElet.setText(
+                        String.format(Locale.getDefault(), "%.2f kWh", maiorConsumo)
+                );
+
+                // =========================
+                // RESTO (PICO / MENOR)
+                // =========================
                 float maior = Float.MIN_VALUE;
                 float menor = Float.MAX_VALUE;
 
@@ -228,53 +309,45 @@ public class Dashboard extends AppCompatActivity {
                 for (Map.Entry<Integer, Float> entry : consumoPorHora.entrySet()) {
 
                     int h = entry.getKey();
-                    float valor = entry.getValue();
+                    float v = entry.getValue();
 
-                    if (valor > maior) {
-                        maior = valor;
+                    if (v > maior) {
+                        maior = v;
                         horaPico = h;
                     }
 
-                    if (valor < menor && valor > 0) {
-                        menor = valor;
+                    if (v < menor && v > 0) {
+                        menor = v;
                         horaMenor = h;
                     }
                 }
 
-                // PICO
                 displayPico.setText(
                         String.format(Locale.getDefault(),
                                 "%.2f kWh",
                                 maior == Float.MIN_VALUE ? 0f : maior)
                 );
 
-                displayHoraPico.setText(
-                        horaPico >= 0 ? "" + horaPico + "h" : ""
-                );
+                displayHoraPico.setText(horaPico >= 0 ? horaPico + "h" : "");
 
-                // MENOR
                 displayMenorConsumo.setText(
                         String.format(Locale.getDefault(),
                                 "%.2f kWh",
                                 menor == Float.MAX_VALUE ? 0f : menor)
                 );
 
-                displayHoraMenor.setText(
-                        horaMenor >= 0 ? "" + horaMenor + "h" : ""
-                );
+                displayHoraMenor.setText(horaMenor >= 0 ? horaMenor + "h" : "");
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(
-                        Dashboard.this,
+
+                Toast.makeText(Dashboard.this,
                         "Erro ao calcular consumo",
-                        Toast.LENGTH_SHORT
-                ).show();
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
-
     // grafico
     private void configurarGrafico() {
 
