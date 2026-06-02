@@ -138,9 +138,10 @@
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/displayConsumoTotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="5,62 kWh"
+                        android:text="-"
                         android:textColor="#000000"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -186,9 +187,10 @@
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/displayCustoEstimado"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="R$ 3,12"
+                        android:text="-"
                         android:textColor="#000000"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -282,6 +284,7 @@
                          />
 
                     <TextView
+                        android:id="@+id/displayPico"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -294,6 +297,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/displayHoraPico"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -338,6 +342,7 @@
                          />
 
                     <TextView
+                        android:id="@+id/displayMenorConsumo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -348,6 +353,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/displayHoraMenor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -392,6 +398,7 @@
                          />
 
                     <TextView
+                        android:id="@+id/displayEletConsumo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -402,6 +409,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/displayConsElet"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"

@@ -2,6 +2,7 @@ package com.example.wattwiseapp;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,11 +19,18 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +40,7 @@ import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,12 +56,14 @@ public class Dashboard extends AppCompatActivity {
     private LineChart lineChart;
     private PieChart pieChartConsumo;
     TextView displayName;
+    private TextView displayConsumoTotal, displayCustoEstimado, displayPico, displayHoraPico, displayMenorConsumo, displayHoraMenor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -61,6 +72,7 @@ public class Dashboard extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
 
         carregarDadosUsuario();
         displayName = findViewById(R.id.displayName);
@@ -73,6 +85,14 @@ public class Dashboard extends AppCompatActivity {
         pieChartConsumo = findViewById(R.id.pieChartConsumo);
         configurarGraficoRosca();
 
+        displayConsumoTotal = findViewById(R.id.displayConsumoTotal);
+        displayCustoEstimado = findViewById(R.id.displayCustoEstimado);
+        displayPico = findViewById(R.id.displayPico);
+        displayHoraPico = findViewById(R.id.displayHoraPico);
+        displayMenorConsumo = findViewById(R.id.displayMenorConsumo);
+        displayHoraMenor = findViewById(R.id.displayHoraMenor);
+
+        calcularConsumoECusto();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -133,70 +153,282 @@ public class Dashboard extends AppCompatActivity {
         return true;
     }
 
+    // exibir infos de consumo de energia (total e custo)
+    private void calcularConsumoECusto() {
+
+        DatabaseReference historicoRef = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("historico_sensores");
+
+        historicoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                float consumoTotal = 0f;
+
+                // consumo por hora (0–23)
+                Map<Integer, Float> consumoPorHora = new HashMap<>();
+
+                for (DataSnapshot sensorSnap : snapshot.getChildren()) {
+
+                    for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
+
+                        Object energiaObj = leituraSnap.child("energia").getValue();
+                        String horaStr = leituraSnap.child("hora").getValue(String.class);
+
+                        if (energiaObj == null || horaStr == null) continue;
+
+                        try {
+                            String energiaLimpa = energiaObj.toString()
+                                    .replaceAll("[^\\d.]", "");
+
+                            float energia = Float.parseFloat(energiaLimpa);
+
+                            consumoTotal += energia;
+
+                            // pega só a hora (ex: "13:05:36" -> 13)
+                            int hora = Integer.parseInt(horaStr.split(":")[0]);
+
+                            float atual = consumoPorHora.containsKey(hora)
+                                    ? consumoPorHora.get(hora)
+                                    : 0f;
+
+                            consumoPorHora.put(hora, atual + energia);
+
+                        } catch (Exception e) {
+                            // ignora erro
+                        }
+                    }
+                }
+
+                final float VALOR_KWH = 0.92f;
+                float custoEstimado = consumoTotal * VALOR_KWH;
+
+                // TOTAL
+                displayConsumoTotal.setText(
+                        String.format(Locale.getDefault(),
+                                "%.2f kWh",
+                                consumoTotal)
+                );
+
+                displayCustoEstimado.setText(
+                        String.format(Locale.getDefault(),
+                                "R$ %.2f",
+                                custoEstimado)
+                );
+
+                // 🔥 PICO E MENOR (por hora)
+                float maior = Float.MIN_VALUE;
+                float menor = Float.MAX_VALUE;
+
+                int horaPico = -1;
+                int horaMenor = -1;
+
+                for (Map.Entry<Integer, Float> entry : consumoPorHora.entrySet()) {
+
+                    int h = entry.getKey();
+                    float valor = entry.getValue();
+
+                    if (valor > maior) {
+                        maior = valor;
+                        horaPico = h;
+                    }
+
+                    if (valor < menor && valor > 0) {
+                        menor = valor;
+                        horaMenor = h;
+                    }
+                }
+
+                // PICO
+                displayPico.setText(
+                        String.format(Locale.getDefault(),
+                                "%.2f kWh",
+                                maior == Float.MIN_VALUE ? 0f : maior)
+                );
+
+                displayHoraPico.setText(
+                        horaPico >= 0 ? "" + horaPico + "h" : ""
+                );
+
+                // MENOR
+                displayMenorConsumo.setText(
+                        String.format(Locale.getDefault(),
+                                "%.2f kWh",
+                                menor == Float.MAX_VALUE ? 0f : menor)
+                );
+
+                displayHoraMenor.setText(
+                        horaMenor >= 0 ? "" + horaMenor + "h" : ""
+                );
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(
+                        Dashboard.this,
+                        "Erro ao calcular consumo",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+    }
+
     // grafico
     private void configurarGrafico() {
-        List<Entry> entradas = new ArrayList<>();
-        entradas.add(new Entry(0, 0.5f));
-        entradas.add(new Entry(6, 1.2f));
-        entradas.add(new Entry(12, 3.5f));
-        entradas.add(new Entry(18, 4.2f));
-        entradas.add(new Entry(22, 2.0f));
 
-        LineDataSet dataSet = new LineDataSet(entradas, "Consumo de Energia");
-        dataSet.setColor(Color.parseColor("#3498DB"));
-        dataSet.setCircleColor(Color.parseColor("#2C3E50"));
-        dataSet.setLineWidth(2.5f);
-        dataSet.setCircleRadius(5f);
+        DatabaseReference historicoRef = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("historico_sensores");
 
-        dataSet.setDrawValues(true);
-        dataSet.setValueTextSize(10f);
-        dataSet.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
-            // formatar o valor pra kwh
+        historicoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public String getFormattedValue(float value) {
-                return value + " kWh";
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                // chave = "data hora"  → consumo total
+                Map<String, Float> consumoPorHora = new HashMap<>();
+
+                SimpleDateFormat sdf =
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+                for (DataSnapshot sensorSnap : snapshot.getChildren()) {
+
+                    for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
+
+                        String data = leituraSnap.child("data").getValue(String.class);
+                        String hora = leituraSnap.child("hora").getValue(String.class);
+                        Object energiaObj = leituraSnap.child("energia").getValue();
+
+                        if (data == null || hora == null || energiaObj == null) continue;
+
+                        float energia;
+
+                        try {
+                            String energiaLimpa = energiaObj.toString()
+                                    .replaceAll("[^\\d.]", "");
+                            energia = Float.parseFloat(energiaLimpa);
+                        } catch (Exception e) {
+                            continue;
+                        }
+
+                        // chave única por hora (ex: 01/06/2026 13)
+                        String horaCompleta = data + " " + hora;
+
+                        float totalAtual = consumoPorHora.containsKey(horaCompleta)
+                                ? consumoPorHora.get(horaCompleta)
+                                : 0f;
+
+                        consumoPorHora.put(horaCompleta, totalAtual + energia);
+                    }
+                }
+
+                if (consumoPorHora.isEmpty()) {
+                    lineChart.clear();
+                    lineChart.setNoDataText("Sem dados de consumo");
+                    lineChart.invalidate();
+                    return;
+                }
+
+                // ordenar por data/hora
+                List<Map.Entry<String, Float>> listaOrdenada =
+                        new ArrayList<>(consumoPorHora.entrySet());
+
+                Collections.sort(listaOrdenada, (a, b) -> {
+                    try {
+                        Date d1 = sdf.parse(a.getKey());
+                        Date d2 = sdf.parse(b.getKey());
+                        return d1.compareTo(d2);
+                    } catch (ParseException e) {
+                        return 0;
+                    }
+                });
+
+                // montar entradas do gráfico
+                List<Entry> entradas = new ArrayList<>();
+                int index = 0;
+
+                for (Map.Entry<String, Float> item : listaOrdenada) {
+                    entradas.add(new Entry(index, item.getValue()));
+                    index++;
+                }
+
+                LineDataSet dataSet =
+                        new LineDataSet(entradas, "Consumo total por hora (kWh)");
+
+                dataSet.setColor(Color.parseColor("#3498DB"));
+                dataSet.setCircleColor(Color.parseColor("#2C3E50"));
+                dataSet.setLineWidth(2.5f);
+                dataSet.setCircleRadius(5f);
+                dataSet.setValueTextSize(10f);
+
+                dataSet.setValueFormatter(new ValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value) {
+                        return String.format(
+                                Locale.getDefault(),
+                                "%.2f kWh",
+                                value
+                        );
+                    }
+                });
+
+                LineData lineData = new LineData(dataSet);
+                lineChart.setData(lineData);
+
+                // eixo X = data + hora
+                XAxis xAxis = lineChart.getXAxis();
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                xAxis.setGranularity(1f);
+                xAxis.setDrawGridLines(false);
+                SimpleDateFormat sdfEntrada =
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+                SimpleDateFormat sdfHora =
+                        new SimpleDateFormat("HH'h'", Locale.getDefault());
+
+                xAxis.setValueFormatter(new ValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value) {
+                        int i = (int) value;
+
+                        if (i < 0 || i >= listaOrdenada.size()) return "";
+
+                        try {
+                            Date date = sdfEntrada.parse(listaOrdenada.get(i).getKey());
+                            return sdfHora.format(date); // ex: 20h, 21h
+                        } catch (ParseException e) {
+                            return "";
+                        }
+                    }
+                });
+
+                // eixo Y = kWh
+                YAxis yAxisLeft = lineChart.getAxisLeft();
+                yAxisLeft.setAxisMinimum(0f);
+                yAxisLeft.setValueFormatter(new ValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value) {
+                        return value + " kWh";
+                    }
+                });
+
+                lineChart.getAxisRight().setEnabled(false);
+                lineChart.getDescription().setEnabled(false);
+                lineChart.animateX(1200);
+                lineChart.invalidate();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(
+                        Dashboard.this,
+                        "Erro ao carregar consumo",
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
-
-        LineData lineData = new LineData(dataSet);
-        lineChart.setData(lineData);
-
-        // horas
-        com.github.mikephil.charting.components.XAxis xAxis = lineChart.getXAxis();
-        xAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM);
-        xAxis.setAxisMinimum(0f);
-        xAxis.setAxisMaximum(24f);
-        xAxis.setGranularity(2f); // Mostra de 2 em 2 horas (ex: 0h, 2h, 4h...) para não embolar
-        xAxis.setDrawGridLines(true);
-
-        // formatar o valor pra hrs
-        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return ((int) value) + "h";
-            }
-        });
-
-        // kwh
-        com.github.mikephil.charting.components.YAxis yAxisLeft = lineChart.getAxisLeft();
-        yAxisLeft.setAxisMinimum(0f);
-
-        // formatar o valor pra kwh
-        yAxisLeft.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return value + " kWh";
-            }
-        });
-
-
-        lineChart.getAxisRight().setEnabled(false);
-
-
-        lineChart.getDescription().setEnabled(false);
-
-        lineChart.animateX(1200);
-        lineChart.invalidate();
     }
     private void configurarGraficoRosca() {
 
