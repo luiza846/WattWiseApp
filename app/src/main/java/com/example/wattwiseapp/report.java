@@ -1,8 +1,11 @@
 package com.example.wattwiseapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
@@ -40,7 +43,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +71,7 @@ public class report extends AppCompatActivity {
 
         // botao
         btnRelatorio = findViewById(R.id.btnRelatorio);
+
 
         //campos
         edtPeriodo = findViewById(R.id.edtPeriodo);
@@ -170,171 +177,248 @@ public class report extends AppCompatActivity {
         }
 
 
-        btnRelatorio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                criarPdf("Relatorio");
-            }
+        btnRelatorio.setOnClickListener(v -> {
+
+            DatabaseReference rootRef =
+                    FirebaseDatabase.getInstance().getReference();
+
+            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    gerarRelatorioPdf("Relatorio", snapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                    Toast.makeText(report.this,
+                            "Erro ao gerar relatório",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
     // gerar pdf
-    public void criarPdf(String title){
+    public void gerarRelatorioPdf(String title, DataSnapshot snapshot) {
 
-        //TESTE GERADO POR AI
-        // 1. Criar o documento PDF
         PdfDocument pdfDocument = new PdfDocument();
 
-        // 2. Definir o tamanho da página (Tamanho A4 padrão em pontos: 595 x 842)
-        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+        PdfDocument.PageInfo pageInfo =
+                new PdfDocument.PageInfo.Builder(595, 842, 1).create();
 
-        // 3. Iniciar a página
         PdfDocument.Page page = pdfDocument.startPage(pageInfo);
         Canvas canvas = page.getCanvas();
         Paint paint = new Paint();
 
-        // --- Desenhar o Conteúdo do Relatório ---
+        // ================= LOGO =================
+        Bitmap logoOriginal = BitmapFactory.decodeResource(getResources(), R.drawable.wattwise);
 
-// --- Desenhar o Conteúdo do Relatório ---
-
-// 1. Carrega a imagem original em alta resolução (Mantém intacta)
-        android.graphics.Bitmap logoOriginal = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.wattwise);
-
-// 2. Define o tamanho visual que você quer que ela ocupe no PDF (em pontos)
         float larguraDesejadaPdf = 150f;
-
-// 3. Calcula o fator de escala necessário baseado no tamanho original da imagem
         float escala = larguraDesejadaPdf / logoOriginal.getWidth();
 
-// 4. Cria uma Matrix para aplicar o redimensionamento e o posicionamento
-        android.graphics.Matrix matrix = new android.graphics.Matrix();
-        matrix.postScale(escala, escala); // Aplica a escala proporcional
-        matrix.postTranslate(40, 25);     // Define a posição (Margem esquerda X=40, Topo Y=25)
+        Matrix matrix = new Matrix();
+        matrix.postScale(escala, escala);
+        matrix.postTranslate(40, 25);
 
-// 5. Configura o Paint com filtros de alta qualidade para a renderização
-        android.graphics.Paint paintLogo = new android.graphics.Paint();
+        Paint paintLogo = new Paint();
         paintLogo.setAntiAlias(true);
-        paintLogo.setFilterBitmap(true); // Garante a suavização ao desenhar no PDF
+        paintLogo.setFilterBitmap(true);
 
-// 6. Desenha a logo original usando a matrix e o paint configurados
         canvas.drawBitmap(logoOriginal, matrix, paintLogo);
-        // texto
+
+        // ================= TÍTULO =================
         paint.setColor(Color.BLACK);
         paint.setTextSize(14);
-        canvas.drawText("Relatório Consolidado de Consumo Energético por Tomada", 40, 110, paint);
+        paint.setTypeface(Typeface.DEFAULT_BOLD);
+        canvas.drawText("Relatório de Consumo (Últimos 30 dias)", 40, 110, paint);
 
-        // Resumo rápido
-        paint.setColor(Color.BLACK);
+        // ================= FIREBASE =================
+        DataSnapshot userSnap = snapshot.child("Usuarios")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        DataSnapshot historicoSnap = snapshot.child("historico_sensores");
+
+        // ================= MAPAS =================
+        Map<String, String> sensorToEletro = new HashMap<>();
+        Map<String, String> eletroToNome = new HashMap<>();
+        Map<String, String> eletroToComodo = new HashMap<>();
+
+        for (DataSnapshot s : userSnap.child("dados").getChildren()) {
+            sensorToEletro.put(s.getKey(), s.child("idEletroAtivo").getValue(String.class));
+        }
+
+        for (DataSnapshot e : userSnap.child("Eletronicos").getChildren()) {
+            eletroToNome.put(e.getKey(), e.child("nomeEletro").getValue(String.class));
+            eletroToComodo.put(e.getKey(), e.child("comodoEletro").getValue(String.class));
+        }
+
+        // ================= 30 DIAS =================
+        long limite30dias = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000);
+
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+        // ================= STRUCT CORRETA =================
+        class Linha {
+            String comodo;
+            String aparelho;
+            String data;
+            float consumo;
+
+            Linha(String c, String a, String d, float v) {
+                comodo = c;
+                aparelho = a;
+                data = d;
+                consumo = v;
+            }
+        }
+
+        Map<String, Linha> dadosPorDia = new HashMap<>();
+        float total = 0f;
+
+        // ================= PROCESSAMENTO =================
+        for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
+
+            String sensorId = sensorSnap.getKey();
+            String idEletro = sensorToEletro.get(sensorId);
+
+            if (idEletro == null) continue;
+
+            String aparelho = eletroToNome.get(idEletro);
+            String comodo = eletroToComodo.get(idEletro);
+
+            if (aparelho == null || comodo == null) continue;
+
+            for (DataSnapshot leitura : sensorSnap.getChildren()) {
+
+                try {
+                    String energiaStr = leitura.child("energia").getValue(String.class);
+                    String data = leitura.child("data").getValue(String.class);
+                    String hora = leitura.child("hora").getValue(String.class);
+
+                    if (energiaStr == null || data == null || hora == null) continue;
+
+                    Date date = sdf.parse(data + " " + hora);
+                    if (date == null || date.getTime() < limite30dias) continue;
+
+                    float energia = Float.parseFloat(
+                            energiaStr.replace("kWh", "").trim()
+                    );
+
+                    total += energia;
+
+                    Linha atual = dadosPorDia.get(data);
+
+                    if (atual == null) {
+                        dadosPorDia.put(data,
+                                new Linha(comodo, aparelho, data, energia));
+                    } else {
+                        atual.consumo += energia;
+                    }
+
+                } catch (Exception ignored) {}
+            }
+        }
+
+        // ================= ORDENAR =================
+        List<Linha> lista = new ArrayList<>(dadosPorDia.values());
+
+        Collections.sort(lista, (a, b) -> {
+            try {
+                Date d1 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(a.data);
+                Date d2 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(b.data);
+                return d1.compareTo(d2);
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+
+        // ================= RESUMO =================
+        float custo = total * 0.92f;
+
         paint.setTextSize(12);
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        canvas.drawText("Consumo do Mês: 250 kWh", 40, 145, paint);
-        canvas.drawText("Valor Estimado Total: R$ 180,00", 40, 162, paint);
+        paint.setTypeface(Typeface.DEFAULT);
 
-        // Linha divisória abaixo dos títulos (Ajustada para Y = 90)
+        canvas.drawText("Consumo do Mês: " +
+                        String.format(Locale.getDefault(), "%.2f kWh", total),
+                40, 145, paint);
+
+        canvas.drawText("Valor Estimado Total: R$ " +
+                        String.format(Locale.getDefault(), "%.2f", custo),
+                40, 162, paint);
+
+        // ================= LINHA =================
         paint.setColor(Color.GRAY);
         paint.setStrokeWidth(1.5f);
         canvas.drawLine(40, 85, 555, 85, paint);
 
-        // ---------------------------------------------------------
-        // 2. CONFIGURAÇÃO DA TABELA (Coordenadas)
-        // ---------------------------------------------------------
-        int inicioX = 40;       // Margem esquerda
-        int fimX = 555;         // Margem direita
-        int linhaY = 190;       // Posição Y inicial da tabela
-        int alturaLinha = 30;   // Espaçamento vertical entre as linhas
+        // ================= TABELA =================
+        int y = 190;
 
-        // Definição das colunas (Posição X onde cada uma começa)
         int colComodo = 40;
         int colAparelho = 160;
-        int colConsumo = 340;
-        int colCusto = 460;
+        int colData = 320;
+        int colConsumo = 460;
 
-        // --- CABEÇALHO DA TABELA ---
-        paint.setColor(Color.parseColor("#2F3B75")); // Cor escura igual ao seu app
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        paint.setColor(Color.parseColor("#2F3B75"));
+        paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setTextSize(13);
 
-        canvas.drawText("Cômodo", colComodo, linhaY, paint);
-        canvas.drawText("Aparelho", colAparelho, linhaY, paint);
-        canvas.drawText("Consumo", colConsumo, linhaY, paint);
-        canvas.drawText("Custo Est.", colCusto, linhaY, paint);
+        canvas.drawText("Cômodo", colComodo, y, paint);
+        canvas.drawText("Aparelho", colAparelho, y, paint);
+        canvas.drawText("Data", colData, y, paint);
+        canvas.drawText("Consumo", colConsumo, y, paint);
 
-        // Linha abaixo do cabeçalho da tabela
         paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(1.5f);
-        canvas.drawLine(inicioX, linhaY + 8, fimX, linhaY + 8, paint);
+        canvas.drawLine(40, y + 8, 555, y + 8, paint);
 
-        // ---------------------------------------------------------
-        // 3. POPULAR OS DADOS DA TABELA (Dinâmico)
-        // ---------------------------------------------------------
-
-        // Mudar estilo para o corpo da tabela
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        paint.setTypeface(Typeface.DEFAULT);
         paint.setTextSize(12);
 
-        for (int i = 0; i < dadosReais.size(); i++) {
-            String[] item = dadosReais.get(i);
+        y += 25;
 
-            // Avança o Y para a próxima linha
-            linhaY += alturaLinha;
+        for (Linha l : lista) {
 
-            // Estilização zebrada opcional
-            if (i % 2 == 0) {
-                paint.setColor(Color.BLACK);
-            } else {
-                paint.setColor(Color.parseColor("#555555")); // Um cinza escuro
-            }
+            canvas.drawText(l.comodo, colComodo, y, paint);
+            canvas.drawText(l.aparelho, colAparelho, y, paint);
+            canvas.drawText(l.data, colData, y, paint);
 
-            // Cálculo do custo fictício igual você fez no TableLayout
-            String custoCalculado = "R$ " + (45.50 + (i * 12));
+            canvas.drawText(
+                    String.format(Locale.getDefault(), "%.3f kWh", l.consumo),
+                    colConsumo,
+                    y,
+                    paint
+            );
 
-            // Desenha o texto de cada coluna na linha atual (Y)
-            canvas.drawText(item[0], colComodo, linhaY, paint);   // Cômodo
-            canvas.drawText(item[1], colAparelho, linhaY, paint); // Aparelho
-            canvas.drawText(item[2], colConsumo, linhaY, paint);  // Consumo
-
-            // Destacar a coluna de custo com a cor azul escura do seu app
-            paint.setColor(Color.parseColor("#2F3B75"));
-            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            canvas.drawText(custoCalculado, colCusto, linhaY, paint);
-
-            // Reseta estilos padrão para a próxima volta do laço
-            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-
-            // Desenha uma linha fina separadora sob o registro atual
             paint.setColor(Color.parseColor("#E0E0E0"));
-            paint.setStrokeWidth(0.5f);
-            canvas.drawLine(inicioX, linhaY + 8, fimX, linhaY + 8, paint);
+            canvas.drawLine(40, y + 8, 555, y + 8, paint);
+            paint.setColor(Color.BLACK);
+
+            y += 22;
+
+            if (y > 800) break;
         }
 
-        // 4. Finalizar a página
+        // ================= FINAL =================
         pdfDocument.finishPage(page);
 
-        // 5. Salvar o arquivo no armazenamento do dispositivo
-        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File dir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS);
 
-        // Criar um nome único usando o milissegundo atual
-        String nomeArquivo = "Relatorio_Consumo_" + System.currentTimeMillis() + ".pdf";
-        File arquivo = new File(diretorio, nomeArquivo);
+        File file = new File(dir,
+                "Relatorio_30_dias_" + System.currentTimeMillis() + ".pdf");
 
         try {
-            pdfDocument.writeTo(new FileOutputStream(arquivo));
+            pdfDocument.writeTo(new FileOutputStream(file));
             Toast.makeText(this, "PDF salvo em Downloads!", Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        // 6. Fechar o documento
+
         pdfDocument.close();
     }
-
-    // menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_principal, menu);
-        return true;
-    }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
