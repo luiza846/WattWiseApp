@@ -435,7 +435,7 @@ public class Dashboard extends AppCompatActivity {
         pieChartConsumo.setDrawHoleEnabled(true);
         pieChartConsumo.setHoleRadius(55f);
         pieChartConsumo.setTransparentCircleRadius(60f);
-        pieChartConsumo.setCenterText("Consumo por\nCômodo");
+        pieChartConsumo.setCenterText("Consumo por\nCômodo (24h)");
         pieChartConsumo.setCenterTextSize(16f);
         pieChartConsumo.setCenterTextColor(Color.DKGRAY);
         pieChartConsumo.getDescription().setEnabled(false);
@@ -453,57 +453,102 @@ public class Dashboard extends AppCompatActivity {
                 Map<String, Float> consumoPorComodo = new HashMap<>();
 
                 DataSnapshot userSnap = snapshot.child("Usuarios").child(userId);
-                DataSnapshot sensoresGlobais = snapshot.child("dados");
+                DataSnapshot historicoSnap = snapshot.child("historico_sensores");
 
-                // eletrodoméstico para o sensor
-                Map<String, String> eletroParaSensor = new HashMap<>();
+
+                //  MAPEAR SENSOR -> ELETRO
+
+                Map<String, String> sensorParaEletro = new HashMap<>();
 
                 for (DataSnapshot sensorSnap : userSnap.child("dados").getChildren()) {
-                    String idSensor = sensorSnap.getKey();
+
+                    String sensorId = sensorSnap.getKey();
                     String idEletro = sensorSnap.child("idEletroAtivo").getValue(String.class);
 
-                    if (idSensor != null && idEletro != null) {
-                        eletroParaSensor.put(idEletro, idSensor);
+                    if (sensorId != null && idEletro != null) {
+                        sensorParaEletro.put(sensorId, idEletro);
                     }
                 }
 
-                // eletrodomésticos
+
+                // MAPEAR ELETRO -> CÔMODO
+
+                Map<String, String> eletroParaComodo = new HashMap<>();
+
                 for (DataSnapshot eletroSnap : userSnap.child("Eletronicos").getChildren()) {
 
                     String idEletro = eletroSnap.getKey();
-                    String nomeComodo = eletroSnap.child("comodoEletro").getValue(String.class);
 
-                    if (idEletro == null || nomeComodo == null) continue;
-                    if (!eletroParaSensor.containsKey(idEletro)) continue;
+                    String nomeComodo = eletroSnap.child("comodoEletro")
+                            .getValue(String.class);
 
-                    String idSensor = eletroParaSensor.get(idEletro);
+                    if (idEletro != null && nomeComodo != null) {
+                        eletroParaComodo.put(idEletro, nomeComodo);
+                    }
+                }
 
-                    Object energiaObj = sensoresGlobais
-                            .child(idSensor)
-                            .child("energia")
-                            .getValue();
 
-                    if (energiaObj == null) continue;
+                // FILTRO 24H
 
-                    float energia;
+                SimpleDateFormat sdf =
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
-                    try {
-                        String energiaLimpa = energiaObj.toString()
-                                .replaceAll("[^\\d.]", "");
-                        energia = Float.parseFloat(energiaLimpa);
-                    } catch (Exception e) {
-                        continue;
+                long agora = System.currentTimeMillis();
+                long limite24h = agora - (24 * 60 * 60 * 1000);
+
+
+                // PERCORRER TODOS OS SENSORES
+
+                for (DataSnapshot sensorSnap : userSnap.child("dados").getChildren()) {
+
+                    String sensorId = sensorSnap.getKey();
+                    String idEletro = sensorSnap.child("idEletroAtivo").getValue(String.class);
+
+                    if (sensorId == null || idEletro == null) continue;
+
+                    String nomeComodo = eletroParaComodo.get(idEletro);
+                    if (nomeComodo == null) continue;
+
+                    DataSnapshot sensorHistorico =
+                            historicoSnap.child(sensorId);
+
+                    float somaEnergia = 0f;
+
+                    for (DataSnapshot leitura : sensorHistorico.getChildren()) {
+
+                        String energiaStr = leitura.child("energia").getValue(String.class);
+                        String data = leitura.child("data").getValue(String.class);
+                        String hora = leitura.child("hora").getValue(String.class);
+
+                        if (energiaStr == null || data == null || hora == null) continue;
+
+                        try {
+                            Date date = sdf.parse(data + " " + hora);
+                            if (date == null) continue;
+
+                            long time = date.getTime();
+
+                            // fora das 24h
+                            if (time < limite24h) continue;
+
+                            energiaStr = energiaStr.replace("kWh", "").trim();
+                            somaEnergia += Float.parseFloat(energiaStr);
+
+                        } catch (Exception ignored) {}
                     }
 
-                    // somar os comodos
-                    float totalAtual = consumoPorComodo.containsKey(nomeComodo)
+                    // AGRUPAR POR CÔMODO
+
+                    float atual = consumoPorComodo.containsKey(nomeComodo)
                             ? consumoPorComodo.get(nomeComodo)
                             : 0f;
 
-                    consumoPorComodo.put(nomeComodo, totalAtual + energia);
+                    consumoPorComodo.put(nomeComodo, atual + somaEnergia);
                 }
 
-                // montar o grafico
+
+                // GERAR GRÁFICO
+
                 ArrayList<PieEntry> entries = new ArrayList<>();
 
                 for (Map.Entry<String, Float> item : consumoPorComodo.entrySet()) {
@@ -511,7 +556,7 @@ public class Dashboard extends AppCompatActivity {
                 }
 
                 if (entries.isEmpty()) {
-                    pieChartConsumo.setCenterText("Sem dados\n de consumo");
+                    pieChartConsumo.setCenterText("Sem dados\n24h");
                     pieChartConsumo.invalidate();
                     return;
                 }
@@ -519,7 +564,6 @@ public class Dashboard extends AppCompatActivity {
                 PieDataSet dataSet = new PieDataSet(entries, "Consumo (kWh)");
                 dataSet.setSliceSpace(3f);
                 dataSet.setValueTextSize(12f);
-                dataSet.setValueTextColor(Color.WHITE);
                 dataSet.setColors(
                         com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS
                 );
@@ -538,11 +582,9 @@ public class Dashboard extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(
-                        Dashboard.this,
+                Toast.makeText(Dashboard.this,
                         "Erro ao carregar gráfico",
-                        Toast.LENGTH_SHORT
-                ).show();
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
