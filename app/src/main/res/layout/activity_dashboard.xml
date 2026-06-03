@@ -75,7 +75,7 @@
 
         <TextView
             android:id="@+id/displayName"
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginTop="2dp"
