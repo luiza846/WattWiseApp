@@ -21,6 +21,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <ImageView
+        android:id="@+id/imgBackground"
+        android:layout_width="496dp"
+        android:layout_height="137dp"
+
+        android:layout_marginBottom="50dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ww"
+        app:layout_constraintBottom_toTopOf="@+id/edtNomeEletroReg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0" />
+
     <ImageView
         android:layout_width="120dp"
         android:layout_height="32dp"
@@ -43,11 +59,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtDescricaoEletroReg" />
 
+
     <EditText
         android:id="@+id/edtNomeEletroReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="270dp"
         android:layout_marginBottom="16dp"
         android:ems="10"
         android:hint="Nome do eletrodoméstico"
@@ -56,17 +73,17 @@
         android:textColorHint="#686565"
         app:layout_constraintBottom_toTopOf="@+id/edtTipoEletroReg"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <Spinner
         android:id="@+id/edtTipoEletroReg"
         android:layout_width="209dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:textColor="#000000"
         android:entries="@array/tipos_eletrodomesticos"
+        android:textColor="#000000"
         app:layout_constraintBottom_toTopOf="@+id/edtEletroComodoReg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,20 +120,24 @@
         android:id="@+id/btnRegisterEletroReg"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginTop="33dp"
+        android:layout_marginBottom="208dp"
         android:backgroundTint="#2B3D4F"
         android:text="Cadastrar"
         android:textColor="#FFFFFF"
+        app:cornerRadius="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtDescricaoEletroReg"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <EditText
         android:id="@+id/edtDescricaoEletroReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="16dp"
         android:ems="10"
         android:hint="Descrição"
         android:inputType="text"
@@ -124,6 +145,7 @@
         android:textColorHint="#686565"
         app:layout_constraintBottom_toTopOf="@+id/btnRegisterEletroReg"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtPotenciaReg" />
 
@@ -131,14 +153,14 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="44dp"
         android:text="ADICIONAR ELETRODOMÉSTICO"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/edtNomeEletroReg"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
