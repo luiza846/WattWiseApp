@@ -169,19 +169,16 @@ public class Dashboard extends AppCompatActivity {
                         .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
                 float consumoTotal = 0f;
-
                 Map<Integer, Float> consumoPorHora = new HashMap<>();
 
-                // =========================
-                // MAPAS
-                // =========================
-
+                // ==========================================
+                // MAPAS: MAPEAMENTO DE SENSORES E ELETRÔNICOS
+                // ==========================================
                 Map<String, String> sensorParaEletro = new HashMap<>();
                 Map<String, String> eletroParaNome = new HashMap<>();
 
                 // sensor -> eletro
                 for (DataSnapshot s : userSnap.child("dados").getChildren()) {
-
                     String sensorId = s.getKey();
                     String idEletro = s.child("idEletroAtivo").getValue(String.class);
 
@@ -192,7 +189,6 @@ public class Dashboard extends AppCompatActivity {
 
                 // eletro -> nome
                 for (DataSnapshot e : userSnap.child("Eletronicos").getChildren()) {
-
                     String id = e.getKey();
                     String nome = e.child("nomeEletro").getValue(String.class);
 
@@ -201,20 +197,17 @@ public class Dashboard extends AppCompatActivity {
                     }
                 }
 
-                // =========================
-                // TOP ELETRO
-                // =========================
+                // Map para armazenar o consumo real acumulado por eletrodoméstico
                 Map<String, Float> consumoPorEletro = new HashMap<>();
 
                 long agora = System.currentTimeMillis();
                 long limite24h = agora - (24 * 60 * 60 * 1000);
 
-                SimpleDateFormat sdf =
-                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
-                // =========================
-                // PERCORRER HISTÓRICO
-                // =========================
+                // ==========================================
+                // PERCORRER HISTÓRICO E CALCULAR DELTAS
+                // ==========================================
                 for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
 
                     String sensorId = sensorSnap.getKey();
@@ -225,7 +218,7 @@ public class Dashboard extends AppCompatActivity {
 
                     if (nomeEletro == null) continue;
 
-                    // Criado apenas para controlar o cálculo do Consumo Total do sensor atual
+                    // Controla o ponto de partida do acumulador para cada sensor individualmente
                     Float energiaAnteriorParaTotal = null;
 
                     for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
@@ -242,9 +235,9 @@ public class Dashboard extends AppCompatActivity {
 
                             long time = date.getTime();
 
-                            // filtro 24h
+                            // Filtro das últimas 24h
                             if (time < limite24h) {
-                                // Guarda o ponto de partida das 24h para o cálculo do total
+                                // Guarda a última leitura antes do corte de 24h como base inicial
                                 energiaStr = energiaStr.replace("kWh", "").trim();
                                 energiaAnteriorParaTotal = Float.parseFloat(energiaStr);
                                 continue;
@@ -253,51 +246,53 @@ public class Dashboard extends AppCompatActivity {
                             energiaStr = energiaStr.replace("kWh", "").trim();
                             float energia = Float.parseFloat(energiaStr);
 
-                            // CORREÇÃO APENAS PARA O CONSUMO TOTAL:
+                            // Se não encontrou nenhuma leitura antes das 24h, a primeira leitura dentro do período vira a base
                             if (energiaAnteriorParaTotal == null) {
                                 energiaAnteriorParaTotal = energia;
                             }
+
+                            // CALCULA O CONSUMO REAL (A diferença entre a leitura atual e a anterior)
                             float deltaParaTotal = energia - energiaAnteriorParaTotal;
 
-                            // Proteção contra ruído/reset antes de somar no total
+                            // Proteção contra ruídos na leitura ou resets de medidores
                             if (deltaParaTotal >= 0 && deltaParaTotal <= 5) {
+
+                                // 1. Acumula no consumo total geral
                                 consumoTotal += deltaParaTotal;
+
+                                // 2. Acumula o delta no eletrodoméstico correspondente (CORRIGIDO)
+                                consumoPorEletro.put(nomeEletro,
+                                        consumoPorEletro.getOrDefault(nomeEletro, 0f) + deltaParaTotal);
+
+                                // 3. Acumula o delta no bloco da hora correspondente (CORRIGIDO)
+                                int h = Integer.parseInt(hora.split(":")[0]);
+                                consumoPorHora.put(h,
+                                        consumoPorHora.getOrDefault(h, 0f) + deltaParaTotal);
+
+                                // Atualiza a variável base para o próximo cálculo do laço
                                 energiaAnteriorParaTotal = energia;
                             }
-
-                            // O RESTO CONTINUA EXATAMENTE IGUAL AO SEU ORIGINAL (Usando a variável 'energia')
-                            // por hora
-                            int h = Integer.parseInt(hora.split(":")[0]);
-
-                            consumoPorHora.put(h,
-                                    consumoPorHora.getOrDefault(h, 0f) + energia);
-
-                            // por eletro
-                            consumoPorEletro.put(nomeEletro,
-                                    consumoPorEletro.getOrDefault(nomeEletro, 0f) + energia);
 
                         } catch (Exception ignored) {}
                     }
                 }
 
-                // =========================
-                // ELETRO MAIS CONSUMIDOR
-                // =========================
+                // ==========================================
+                // DESCOBRIR O ELETRODOMÉSTICO MAIS CONSUMIDOR
+                // ==========================================
                 String topEletro = "";
                 float maiorConsumo = 0f;
 
                 for (Map.Entry<String, Float> entry : consumoPorEletro.entrySet()) {
-
                     if (entry.getValue() > maiorConsumo) {
                         maiorConsumo = entry.getValue();
                         topEletro = entry.getKey();
                     }
                 }
 
-                // =========================
-                // UI
-                // =========================
-
+                // ==========================================
+                // ATUALIZAÇÃO DA UI (CONSUMO, CUSTO E TOP)
+                // ==========================================
                 final float VALOR_KWH = 0.92f;
                 float custo = consumoTotal * VALOR_KWH;
 
@@ -309,16 +304,16 @@ public class Dashboard extends AppCompatActivity {
                         String.format(Locale.getDefault(), "R$ %.2f", custo)
                 );
 
-                // ELETRO TOP
-                displayEletConsumo.setText(topEletro);
+                // Eletrodoméstico campeão de consumo
+                displayEletConsumo.setText(topEletro.isEmpty() ? "Nenhum" : topEletro);
 
                 displayConsElet.setText(
                         String.format(Locale.getDefault(), "%.2f kWh", maiorConsumo)
                 );
 
-                // =========================
-                // RESTO (PICO / MENOR)
-                // =========================
+                // ==========================================
+                // ATUALIZAÇÃO DA UI (PICOS / MENOR CONSUMO POR HORA)
+                // ==========================================
                 float maior = Float.MIN_VALUE;
                 float menor = Float.MAX_VALUE;
 
@@ -326,7 +321,6 @@ public class Dashboard extends AppCompatActivity {
                 int horaMenor = -1;
 
                 for (Map.Entry<Integer, Float> entry : consumoPorHora.entrySet()) {
-
                     int h = entry.getKey();
                     float v = entry.getValue();
 
@@ -360,7 +354,6 @@ public class Dashboard extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
                 Toast.makeText(Dashboard.this,
                         "Erro ao calcular consumo",
                         Toast.LENGTH_SHORT).show();
