@@ -2,10 +2,12 @@ package com.example.wattwiseapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -44,6 +46,20 @@ public class registerRoom extends AppCompatActivity {
         txtDisplayInfoReg = findViewById(R.id.txtDisplayInfoReg);
         // botao
         btnRegisterRoomReg = findViewById(R.id.btnRegisterRoomReg);
+
+        edtTipoComodoReg.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) {
+                    ((TextView) view).setTextColor(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Não precisa mexer aqui
+            }
+        });
 
         // menu
         MaterialToolbar toolbar = findViewById(R.id.toolbar);

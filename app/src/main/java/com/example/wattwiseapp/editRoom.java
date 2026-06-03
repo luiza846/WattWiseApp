@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -87,6 +88,7 @@ public class editRoom extends AppCompatActivity {
         // Botão salvar
         Button btnSalvar = findViewById(R.id.btnSalvarEdicaoComodo);
         btnSalvar.setOnClickListener(v -> salvarEdicao());
+
     }
 
     // menu

@@ -37,7 +37,6 @@
 
     <Spinner
         android:id="@+id/edtPeriodo"
-        android:popupBackground="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
@@ -45,6 +44,7 @@
         android:layout_marginBottom="17dp"
         android:entries="@array/periodo"
         android:textColor="#000000"
+        android:theme="@android:style/ThemeOverlay.Material.Light"
         app:layout_constraintBottom_toTopOf="@+id/tableAppliance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.053"

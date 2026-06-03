@@ -1,13 +1,17 @@
 package com.example.wattwiseapp;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -74,6 +78,20 @@ public class connectSensor extends AppCompatActivity {
         adapterEletros.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerEletros.setAdapter(adapterEletros);
 
+        spinnerEletros.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) {
+                    ((TextView) view).setTextColor(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Não precisa mexer aqui
+            }
+        });
+
         eletrosRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -100,11 +118,14 @@ public class connectSensor extends AppCompatActivity {
                 }
             }
 
+
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(connectSensor.this, "Erro ao carregar aparelhos", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     private void conectarEletroAoSensor() {

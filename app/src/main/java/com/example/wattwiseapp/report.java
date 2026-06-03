@@ -88,7 +88,7 @@ public class report extends AppCompatActivity {
         edtPeriodo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                edtPeriodo.setPopupBackgroundResource(android.R.color.white);
+
 
                 // texto do item selecionado (spinner fechado)
                 if (view instanceof TextView) {
