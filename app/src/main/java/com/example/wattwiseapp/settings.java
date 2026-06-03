@@ -57,38 +57,8 @@ public class settings extends AppCompatActivity {
         // chamar o metodo
         carregarDadosUsuario();
 
-        //spinner
-        Spinner spinner = findViewById(R.id.edtAparencia);
 
-        // ajusta spinner conforme tema salvo
-        if (themeMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            spinner.setSelection(1); // Escuro
-        } else {
-            spinner.setSelection(0); // Claro
-        }
 
-        // salva mudança de aparência
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                SharedPreferences.Editor editor =
-                        getSharedPreferences("app_prefs", MODE_PRIVATE).edit();
-
-                if (position == 0) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    editor.putInt("app_theme", AppCompatDelegate.MODE_NIGHT_NO);
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    editor.putInt("app_theme", AppCompatDelegate.MODE_NIGHT_YES);
-                }
-
-                editor.apply();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
 
         // display
         txtDisplayNome = findViewById(R.id.txtDisplayNome);
@@ -219,7 +189,7 @@ public class settings extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(settings.this, connectSensor.class);
+            Intent i = new Intent(settings.this, listSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {

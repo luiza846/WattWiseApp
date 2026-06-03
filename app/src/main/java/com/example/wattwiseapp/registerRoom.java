@@ -134,7 +134,7 @@ public class registerRoom extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(registerRoom.this, connectSensor.class);
+            Intent i = new Intent(registerRoom.this, listSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {

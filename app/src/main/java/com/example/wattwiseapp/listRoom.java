@@ -157,7 +157,7 @@ public class listRoom extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(listRoom.this, connectSensor.class);
+            Intent i = new Intent(listRoom.this, listSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {

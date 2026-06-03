@@ -170,7 +170,7 @@ public class listAppliance extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.sensor) {
-                Intent i = new Intent(listAppliance.this, connectSensor.class);
+                Intent i = new Intent(listAppliance.this, listSensor.class);
                 startActivity(i);
                 return true;
             } else if (id == R.id.comodo) {

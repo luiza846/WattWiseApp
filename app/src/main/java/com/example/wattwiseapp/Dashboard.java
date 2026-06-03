@@ -225,6 +225,9 @@ public class Dashboard extends AppCompatActivity {
 
                     if (nomeEletro == null) continue;
 
+                    // Criado apenas para controlar o cálculo do Consumo Total do sensor atual
+                    Float energiaAnteriorParaTotal = null;
+
                     for (DataSnapshot leituraSnap : sensorSnap.getChildren()) {
 
                         String energiaStr = leituraSnap.child("energia").getValue(String.class);
@@ -240,13 +243,29 @@ public class Dashboard extends AppCompatActivity {
                             long time = date.getTime();
 
                             // filtro 24h
-                            if (time < limite24h) continue;
+                            if (time < limite24h) {
+                                // Guarda o ponto de partida das 24h para o cálculo do total
+                                energiaStr = energiaStr.replace("kWh", "").trim();
+                                energiaAnteriorParaTotal = Float.parseFloat(energiaStr);
+                                continue;
+                            }
 
                             energiaStr = energiaStr.replace("kWh", "").trim();
                             float energia = Float.parseFloat(energiaStr);
 
-                            consumoTotal += energia;
+                            // CORREÇÃO APENAS PARA O CONSUMO TOTAL:
+                            if (energiaAnteriorParaTotal == null) {
+                                energiaAnteriorParaTotal = energia;
+                            }
+                            float deltaParaTotal = energia - energiaAnteriorParaTotal;
 
+                            // Proteção contra ruído/reset antes de somar no total
+                            if (deltaParaTotal >= 0 && deltaParaTotal <= 5) {
+                                consumoTotal += deltaParaTotal;
+                                energiaAnteriorParaTotal = energia;
+                            }
+
+                            // O RESTO CONTINUA EXATAMENTE IGUAL AO SEU ORIGINAL (Usando a variável 'energia')
                             // por hora
                             int h = Integer.parseInt(hora.split(":")[0]);
 
@@ -290,7 +309,7 @@ public class Dashboard extends AppCompatActivity {
                         String.format(Locale.getDefault(), "R$ %.2f", custo)
                 );
 
-                // 🔥 ELETRO TOP
+                // ELETRO TOP
                 displayEletConsumo.setText(topEletro);
 
                 displayConsElet.setText(
@@ -640,11 +659,13 @@ public class Dashboard extends AppCompatActivity {
                 dataSet.setColors(
                         com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS
                 );
-
+                dataSet.setValueTextColor(android.graphics.Color.WHITE);
                 dataSet.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
                     @Override
                     public String getFormattedValue(float value) {
                         return String.format(Locale.getDefault(), "%.2f kWh", value);
+
+
                     }
                 });
 

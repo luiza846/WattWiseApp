@@ -466,7 +466,7 @@ public class report extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.sensor) {
-            Intent i = new Intent(report.this, connectSensor.class);
+            Intent i = new Intent(report.this, listSensor.class);
             startActivity(i);
             return true;
         } else if (id == R.id.comodo) {
