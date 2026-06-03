@@ -247,39 +247,54 @@ public class report extends AppCompatActivity {
 
         PdfDocument pdfDocument = new PdfDocument();
 
-        PdfDocument.PageInfo pageInfo =
-                new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+        // Configuração inicial da primeira página A4 (595 x 842 pixels)
+        final int PAGE_WIDTH = 595;
+        final int PAGE_HEIGHT = 842;
+        int pageNumber = 1;
 
-        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
-        Canvas canvas = page.getCanvas();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageNumber).create();
+        final PdfDocument.Page[] page = {pdfDocument.startPage(pageInfo)};
+        final Canvas[] canvas = {page[0].getCanvas()};
         Paint paint = new Paint();
 
-        // ================= LOGO =================
-        Bitmap logoOriginal = BitmapFactory.decodeResource(getResources(), R.drawable.wattwise);
+        // Método auxiliar para desenhar o cabeçalho padrão em novas páginas
+        Runnable desenharCabecalho = new Runnable() {
+            @Override
+            public void run() {
+                // ================= LOGO =================
+                Bitmap logoOriginal = BitmapFactory.decodeResource(getResources(), R.drawable.wattwise);
+                if (logoOriginal != null) {
+                    float larguraDesejadaPdf = 150f;
+                    float escala = larguraDesejadaPdf / logoOriginal.getWidth();
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(escala, escala);
+                    matrix.postTranslate(40, 25);
 
-        float larguraDesejadaPdf = 150f;
-        float escala = larguraDesejadaPdf / logoOriginal.getWidth();
+                    Paint paintLogo = new Paint();
+                    paintLogo.setAntiAlias(true);
+                    paintLogo.setFilterBitmap(true);
+                    canvas[0].drawBitmap(logoOriginal, matrix, paintLogo);
+                }
 
-        Matrix matrix = new Matrix();
-        matrix.postScale(escala, escala);
-        matrix.postTranslate(40, 25);
+                // ================= TÍTULO =================
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(14);
+                paint.setTypeface(Typeface.DEFAULT_BOLD);
+                canvas[0].drawText("Relatório de Consumo (Últimos 30 dias)", 40, 110, paint);
 
-        Paint paintLogo = new Paint();
-        paintLogo.setAntiAlias(true);
-        paintLogo.setFilterBitmap(true);
+                // ================= LINHA DIVISÓRIA =================
+                paint.setColor(Color.GRAY);
+                paint.setStrokeWidth(1.5f);
+                canvas[0].drawLine(40, 85, 555, 85, paint);
+            }
+        };
 
-        canvas.drawBitmap(logoOriginal, matrix, paintLogo);
-
-        // ================= TÍTULO =================
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(14);
-        paint.setTypeface(Typeface.DEFAULT_BOLD);
-        canvas.drawText("Relatório de Consumo (Últimos 30 dias)", 40, 110, paint);
+        // Desenha o cabeçalho na primeira página
+        desenharCabecalho.run();
 
         // ================= FIREBASE =================
         DataSnapshot userSnap = snapshot.child("Usuarios")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
         DataSnapshot historicoSnap = snapshot.child("historico_sensores");
 
         // ================= MAPAS =================
@@ -296,13 +311,11 @@ public class report extends AppCompatActivity {
             eletroToComodo.put(e.getKey(), e.child("comodoEletro").getValue(String.class));
         }
 
-        // ================= 30 DIAS =================
+        // ================= LIMITAÇÃO 30 DIAS =================
         long limite30dias = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
-        SimpleDateFormat sdf =
-                new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-
-        // ================= STRUCT CORRETA =================
+        // Classe para estruturar as linhas da tabela
         class Linha {
             String comodo;
             String aparelho;
@@ -317,24 +330,24 @@ public class report extends AppCompatActivity {
             }
         }
 
-        Map<String, Linha> dadosPorDia = new HashMap<>();
-        float total = 0f;
+        // Chave composta para agrupar individualmente por "Data_Aparelho"
+        Map<String, Linha> agrupamentoDados = new HashMap<>();
+        float totalGeralConsumo = 0f;
 
-        // ================= PROCESSAMENTO =================
+        // ================= PROCESSAMENTO COM DELTAS =================
         for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
 
             String sensorId = sensorSnap.getKey();
             String idEletro = sensorToEletro.get(sensorId);
-
             if (idEletro == null) continue;
 
             String aparelho = eletroToNome.get(idEletro);
             String comodo = eletroToComodo.get(idEletro);
-
             if (aparelho == null || comodo == null) continue;
 
-            for (DataSnapshot leitura : sensorSnap.getChildren()) {
+            Float energiaAnteriorParaPdf = null;
 
+            for (DataSnapshot leitura : sensorSnap.getChildren()) {
                 try {
                     String energiaStr = leitura.child("energia").getValue(String.class);
                     String data = leitura.child("data").getValue(String.class);
@@ -343,30 +356,48 @@ public class report extends AppCompatActivity {
                     if (energiaStr == null || data == null || hora == null) continue;
 
                     Date date = sdf.parse(data + " " + hora);
-                    if (date == null || date.getTime() < limite30dias) continue;
+                    if (date == null) continue;
 
-                    float energia = Float.parseFloat(
-                            energiaStr.replace("kWh", "").trim()
-                    );
+                    long time = date.getTime();
 
-                    total += energia;
+                    // Se for leitura anterior ao corte de 30 dias, guarda como base
+                    if (time < limite30dias) {
+                        energiaStr = energiaStr.replace("kWh", "").trim();
+                        energiaAnteriorParaPdf = Float.parseFloat(energiaStr);
+                        continue;
+                    }
 
-                    Linha atual = dadosPorDia.get(data);
+                    energiaStr = energiaStr.replace("kWh", "").trim();
+                    float energia = Float.parseFloat(energiaStr);
 
-                    if (atual == null) {
-                        dadosPorDia.put(data,
-                                new Linha(comodo, aparelho, data, energia));
-                    } else {
-                        atual.consumo += energia;
+                    if (energiaAnteriorParaPdf == null) {
+                        energiaAnteriorParaPdf = energia;
+                    }
+
+                    // CALCULA O DELTA (Consumo real do período)
+                    float deltaParaPdf = energia - energiaAnteriorParaPdf;
+
+                    if (deltaParaPdf >= 0 && deltaParaPdf <= 5) {
+                        totalGeralConsumo += deltaParaPdf;
+
+                        // Agrupa por Dia + Aparelho para não sobrepor registros de eletrodomésticos diferentes no mesmo dia
+                        String chaveAgrupamento = data + "_" + aparelho;
+                        Linha atual = agrupamentoDados.get(chaveAgrupamento);
+
+                        if (atual == null) {
+                            agrupamentoDados.put(chaveAgrupamento, new Linha(comodo, aparelho, data, deltaParaPdf));
+                        } else {
+                            atual.consumo += deltaParaPdf;
+                        }
+                        energiaAnteriorParaPdf = energia;
                     }
 
                 } catch (Exception ignored) {}
             }
         }
 
-        // ================= ORDENAR =================
-        List<Linha> lista = new ArrayList<>(dadosPorDia.values());
-
+        // ================= ORDENAÇÃO POR DATA =================
+        List<Linha> lista = new ArrayList<>(agrupamentoDados.values());
         Collections.sort(lista, (a, b) -> {
             try {
                 Date d1 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(a.data);
@@ -377,28 +408,16 @@ public class report extends AppCompatActivity {
             }
         });
 
-        // ================= RESUMO =================
-        float custo = total * 0.92f;
-
+        // ================= EXIBIÇÃO DO RESUMO DO MÊS =================
+        float custo = totalGeralConsumo * 0.92f;
         paint.setTextSize(12);
         paint.setTypeface(Typeface.DEFAULT);
 
-        canvas.drawText("Consumo do Mês: " +
-                        String.format(Locale.getDefault(), "%.2f kWh", total),
-                40, 145, paint);
+        canvas[0].drawText("Consumo Total do Mês: " + String.format(Locale.getDefault(), "%.2f kWh", totalGeralConsumo), 40, 145, paint);
+        canvas[0].drawText("Valor Estimado Total: R$ " + String.format(Locale.getDefault(), "%.2f", custo), 40, 162, paint);
 
-        canvas.drawText("Valor Estimado Total: R$ " +
-                        String.format(Locale.getDefault(), "%.2f", custo),
-                40, 162, paint);
-
-        // ================= LINHA =================
-        paint.setColor(Color.GRAY);
-        paint.setStrokeWidth(1.5f);
-        canvas.drawLine(40, 85, 555, 85, paint);
-
-        // ================= TABELA =================
+        // ================= CONFIGURAÇÃO DA TABELA =================
         int y = 190;
-
         int colComodo = 40;
         int colAparelho = 160;
         int colData = 320;
@@ -408,59 +427,65 @@ public class report extends AppCompatActivity {
         paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setTextSize(13);
 
-        canvas.drawText("Cômodo", colComodo, y, paint);
-        canvas.drawText("Aparelho", colAparelho, y, paint);
-        canvas.drawText("Data", colData, y, paint);
-        canvas.drawText("Consumo", colConsumo, y, paint);
+        canvas[0].drawText("Cômodo", colComodo, y, paint);
+        canvas[0].drawText("Aparelho", colAparelho, y, paint);
+        canvas[0].drawText("Data", colData, y, paint);
+        canvas[0].drawText("Consumo", colConsumo, y, paint);
 
         paint.setColor(Color.BLACK);
-        canvas.drawLine(40, y + 8, 555, y + 8, paint);
+        canvas[0].drawLine(40, y + 8, 555, y + 8, paint);
 
         paint.setTypeface(Typeface.DEFAULT);
         paint.setTextSize(12);
-
         y += 25;
 
+        // ================= RENDERIZAR AS LINHAS (MÚLTIPLAS PÁGINAS) =================
         for (Linha l : lista) {
+            // Se a folha encher (y próximo do limite de 842), fecha a página atual e abre uma nova
+            if (y > 800) {
+                pdfDocument.finishPage(page[0]);
+                pageNumber++;
+                pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageNumber).create();
+                page[0] = pdfDocument.startPage(pageInfo);
+                canvas[0] = page[0].getCanvas();
 
-            canvas.drawText(l.comodo, colComodo, y, paint);
-            canvas.drawText(l.aparelho, colAparelho, y, paint);
-            canvas.drawText(l.data, colData, y, paint);
+                desenharCabecalho.run();
 
-            canvas.drawText(
-                    String.format(Locale.getDefault(), "%.3f kWh", l.consumo),
-                    colConsumo,
-                    y,
-                    paint
-            );
+                // Reinicia a posição Y inicial para a nova página
+                y = 150;
+                paint.setTypeface(Typeface.DEFAULT);
+                paint.setTextSize(12);
+                paint.setColor(Color.BLACK);
+            }
+
+            canvas[0].drawText(l.comodo, colComodo, y, paint);
+            canvas[0].drawText(l.aparelho, colAparelho, y, paint);
+            canvas[0].drawText(l.data, colData, y, paint);
+            canvas[0].drawText(String.format(Locale.getDefault(), "%.3f kWh", l.consumo), colConsumo, y, paint);
 
             paint.setColor(Color.parseColor("#E0E0E0"));
-            canvas.drawLine(40, y + 8, 555, y + 8, paint);
+            canvas[0].drawLine(40, y + 8, 555, y + 8, paint);
             paint.setColor(Color.BLACK);
 
             y += 22;
-
-            if (y > 800) break;
         }
 
-        // ================= FINAL =================
-        pdfDocument.finishPage(page);
+        // ================= SALVAMENTO E FINALIZAÇÃO =================
+        pdfDocument.finishPage(page[0]);
 
-        File dir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS);
-
-        File file = new File(dir,
-                "Relatorio_30_dias_" + System.currentTimeMillis() + ".pdf");
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File file = new File(dir, "Relatorio_30_dias_" + System.currentTimeMillis() + ".pdf");
 
         try {
             pdfDocument.writeTo(new FileOutputStream(file));
             Toast.makeText(this, "PDF salvo em Downloads!", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
         pdfDocument.close();
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -613,15 +638,17 @@ public class report extends AppCompatActivity {
                     eletroToComodo.put(e.getKey(), e.child("comodoEletro").getValue(String.class));
                 }
 
-                long limite = System.currentTimeMillis()
-                        - (diasSelecionados * 24L * 60 * 60 * 1000);
+                // Define o limite com base na quantidade de dias selecionados
+                long limite = System.currentTimeMillis() - (diasSelecionados * 24L * 60 * 60 * 1000);
 
-                SimpleDateFormat sdf =
-                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
                 Map<String, Float> consumoPorEletro = new HashMap<>();
                 Map<String, String> comodoMap = new HashMap<>();
 
+                // ==========================================
+                // PERCORRER HISTÓRICO E CALCULAR DELTAS
+                // ==========================================
                 for (DataSnapshot sensorSnap : historicoSnap.getChildren()) {
 
                     String sensorId = sensorSnap.getKey();
@@ -634,6 +661,10 @@ public class report extends AppCompatActivity {
 
                     if (nome == null || comodo == null) continue;
 
+                    // Controla o ponto de partida do acumulador para cada sensor na tabela
+                    Float energiaAnteriorParaTabela = null;
+                    float totalDeltaSensor = 0f;
+
                     for (DataSnapshot leitura : sensorSnap.getChildren()) {
 
                         try {
@@ -644,20 +675,48 @@ public class report extends AppCompatActivity {
                             if (energiaStr == null || data == null || hora == null) continue;
 
                             Date date = sdf.parse(data + " " + hora);
-                            if (date == null || date.getTime() < limite) continue;
+                            if (date == null) continue;
 
-                            float energia = Float.parseFloat(
-                                    energiaStr.replace("kWh", "").trim()
-                            );
+                            long time = date.getTime();
 
-                            float atual = consumoPorEletro.getOrDefault(nome, 0f);
-                            consumoPorEletro.put(nome, atual + energia);
-                            comodoMap.put(nome, comodo);
+                            // Se a leitura for mais antiga que o limite de dias, serve de base inicial
+                            if (time < limite) {
+                                energiaStr = energiaStr.replace("kWh", "").trim();
+                                energiaAnteriorParaTabela = Float.parseFloat(energiaStr);
+                                continue;
+                            }
+
+                            energiaStr = energiaStr.replace("kWh", "").trim();
+                            float energia = Float.parseFloat(energiaStr);
+
+                            // Caso não haja registros antes do limite, o primeiro registro dentro do intervalo vira a base
+                            if (energiaAnteriorParaTabela == null) {
+                                energiaAnteriorParaTabela = energia;
+                            }
+
+                            // CALCULA O CONSUMO REAL NO INTERVALO (Delta)
+                            float deltaParaTabela = energia - energiaAnteriorParaTabela;
+
+                            // Proteção contra ruídos ou reinicializações do medidor
+                            if (deltaParaTabela >= 0 && deltaParaTabela <= 5) {
+                                totalDeltaSensor += deltaParaTabela;
+                                energiaAnteriorParaTabela = energia;
+                            }
 
                         } catch (Exception ignored) {}
                     }
+
+                    // Acumula o consumo real final calculado do sensor para o eletrodoméstico correspondente
+                    if (totalDeltaSensor > 0) {
+                        float atual = consumoPorEletro.getOrDefault(nome, 0f);
+                        consumoPorEletro.put(nome, atual + totalDeltaSensor);
+                        comodoMap.put(nome, comodo);
+                    }
                 }
 
+                // ==========================================
+                // CONSTRUÇÃO DA LISTA DA TABELA UI
+                // ==========================================
                 List<String[]> lista = new ArrayList<>();
 
                 for (String eletro : consumoPorEletro.keySet()) {
@@ -665,6 +724,7 @@ public class report extends AppCompatActivity {
                     String comodo = comodoMap.get(eletro);
                     float consumo = consumoPorEletro.get(eletro);
 
+                    // Aplica a tarifa de R$ 0,92 sobre o delta real acumulado
                     float custo = consumo * 0.92f;
 
                     lista.add(new String[]{
